@@ -143,6 +143,7 @@ export default function HomePage() {
                   src={slide.image}
                   alt={slide.title}
                   fill
+                  sizes="100vw"
                   className="object-cover object-top"
                   priority={index === 0}
                 />
@@ -279,6 +280,7 @@ export default function HomePage() {
                           src={product.image_url}
                           alt={product.name}
                           fill
+                          sizes="(max-width: 768px) 50vw, 25vw"
                           className="object-cover group-hover:scale-105 transition-transform duration-700"
                         />
                       ) : (
