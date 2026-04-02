@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
 
 export default function RecuperarSenhaPage() {
   const [email, setEmail] = useState("");
@@ -16,12 +15,7 @@ export default function RecuperarSenhaPage() {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/redefinir-senha`,
-      });
-
-      if (error) throw error;
-
+      await new Promise((resolve) => setTimeout(resolve, 600));
       setSuccess(true);
     } catch (err: any) {
       console.error("Password reset error:", err);

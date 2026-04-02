@@ -1,4 +1,5 @@
-import { supabase } from "../supabase";
+import { mockCartByUser } from "../mock-data";
+import { getProducts } from "./products";
 import type { CartItem, AddToCartDTO } from "../types";
 
 // ============================================
@@ -9,59 +10,43 @@ import type { CartItem, AddToCartDTO } from "../types";
  * Busca todos os itens do carrinho do usuário
  */
 export async function getCartItems(userId: string) {
-  const { data, error } = await supabase
-    .from("cart_items")
-    .select(
-      `
-      *,
-      product:products(*)
-    `,
-    )
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+  const items = mockCartByUser[userId] || [];
+  const products = await getProducts();
 
-  if (error) throw error;
-  return data as CartItem[];
+  return items.map((item) => {
+    const product = products.find((entry) => entry.id === item.product_id);
+    return {
+      ...item,
+      product,
+    };
+  });
 }
 
 /**
  * Adiciona item ao carrinho
  */
 export async function addToCart(userId: string, dto: AddToCartDTO) {
-  // Verifica se o item já existe no carrinho
-  const { data: existing } = await supabase
-    .from("cart_items")
-    .select("*")
-    .eq("user_id", userId)
-    .eq("product_id", dto.product_id)
-    .single();
+  const now = new Date().toISOString();
+  const items = mockCartByUser[userId] || [];
+  const existing = items.find((item) => item.product_id === dto.product_id);
 
   if (existing) {
-    // Atualiza a quantidade
-    const { data, error } = await supabase
-      .from("cart_items")
-      .update({ quantity: existing.quantity + dto.quantity })
-      .eq("id", existing.id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  } else {
-    // Cria novo item
-    const { data, error } = await supabase
-      .from("cart_items")
-      .insert({
-        user_id: userId,
-        product_id: dto.product_id,
-        quantity: dto.quantity,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+    existing.quantity += dto.quantity;
+    existing.updated_at = now;
+    return existing;
   }
+
+  const newItem: CartItem = {
+    id: `cart-${Date.now()}`,
+    user_id: userId,
+    product_id: dto.product_id,
+    quantity: dto.quantity,
+    created_at: now,
+    updated_at: now,
+  };
+
+  mockCartByUser[userId] = [newItem, ...items];
+  return newItem;
 }
 
 /**
@@ -75,27 +60,31 @@ export async function updateCartItemQuantity(
     return removeFromCart(cartItemId);
   }
 
-  const { data, error } = await supabase
-    .from("cart_items")
-    .update({ quantity })
-    .eq("id", cartItemId)
-    .select()
-    .single();
+  for (const [userId, items] of Object.entries(mockCartByUser)) {
+    const target = items.find((item) => item.id === cartItemId);
+    if (target) {
+      target.quantity = quantity;
+      target.updated_at = new Date().toISOString();
+      mockCartByUser[userId] = [...items];
+      return target;
+    }
+  }
 
-  if (error) throw error;
-  return data;
+  throw new Error("Item do carrinho nao encontrado");
 }
 
 /**
  * Remove item do carrinho
  */
 export async function removeFromCart(cartItemId: string) {
-  const { error } = await supabase
-    .from("cart_items")
-    .delete()
-    .eq("id", cartItemId);
+  for (const [userId, items] of Object.entries(mockCartByUser)) {
+    const filtered = items.filter((item) => item.id !== cartItemId);
+    if (filtered.length !== items.length) {
+      mockCartByUser[userId] = filtered;
+      break;
+    }
+  }
 
-  if (error) throw error;
   return { success: true };
 }
 
@@ -103,12 +92,7 @@ export async function removeFromCart(cartItemId: string) {
  * Limpa todo o carrinho do usuário
  */
 export async function clearCart(userId: string) {
-  const { error } = await supabase
-    .from("cart_items")
-    .delete()
-    .eq("user_id", userId);
-
-  if (error) throw error;
+  mockCartByUser[userId] = [];
   return { success: true };
 }
 

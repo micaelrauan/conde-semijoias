@@ -2,12 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
 import { getProfile, updateProfile, getOrders } from "@/lib/api";
 import type { Profile, Order } from "@/lib/types";
 
+const demoUser = {
+  id: "demo-user",
+  name: "Cliente Demo",
+  email: "cliente@demo.com",
+};
+
 export default function ContaPage() {
-  const { user, logout, isLoading: authLoading } = useAuth();
+  const user = demoUser;
+  const authLoading = false;
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("perfil");
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -21,12 +27,6 @@ export default function ContaPage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [cpf, setCpf] = useState("");
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/login");
-    }
-  }, [user, authLoading, router]);
 
   useEffect(() => {
     if (user) {
@@ -89,7 +89,7 @@ export default function ContaPage() {
   };
 
   const handleLogout = async () => {
-    await logout();
+    await new Promise((resolve) => setTimeout(resolve, 200));
     router.push("/");
   };
 

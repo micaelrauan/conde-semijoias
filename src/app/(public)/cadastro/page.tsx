@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuth } from "@/contexts/AuthContext";
 
 export default function CadastroPage() {
   const [name, setName] = useState("");
@@ -13,7 +12,6 @@ export default function CadastroPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { register } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +36,7 @@ export default function CadastroPage() {
     setIsLoading(true);
 
     try {
-      await register(name, email, password);
+      await new Promise((resolve) => setTimeout(resolve, 600));
       router.push("/conta");
     } catch (err: any) {
       console.error("Register error:", err);

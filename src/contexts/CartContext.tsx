@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useAuth } from "./AuthContext";
 import {
   getCartItems,
   addToCart,
@@ -31,7 +30,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+  const user = { id: "demo-user" };
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -40,12 +39,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const loadCart = async () => {
-    if (!user) {
-      setItems([]);
-      setTotal(0);
-      return;
-    }
-
     try {
       setIsLoading(true);
       const cartItems = await getCartItems(user.id);
@@ -61,18 +54,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     loadCart();
-  }, [user]);
+  }, []);
 
   const openCart = () => setIsOpen(true);
   const closeCart = () => setIsOpen(false);
   const toggleCart = () => setIsOpen(!isOpen);
 
   const addItem = async (productId: string, quantity: number = 1) => {
-    if (!user) {
-      alert("Faça login para adicionar produtos ao carrinho");
-      return;
-    }
-
     try {
       await addToCart(user.id, { product_id: productId, quantity });
       await loadCart();
@@ -83,8 +71,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateQuantity = async (itemId: string, quantity: number) => {
-    if (!user) return;
-
     try {
       await updateCartItemQuantity(itemId, quantity);
       await loadCart();
@@ -95,8 +81,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const removeItem = async (itemId: string) => {
-    if (!user) return;
-
     try {
       await removeFromCart(itemId);
       await loadCart();
@@ -107,8 +91,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const clearAllItems = async () => {
-    if (!user) return;
-
     try {
       await clearCart(user.id);
       await loadCart();

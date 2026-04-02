@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 
 export default function RedefinirSenhaPage() {
   const router = useRouter();
@@ -29,12 +28,7 @@ export default function RedefinirSenhaPage() {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: password,
-      });
-
-      if (error) throw error;
-
+      await new Promise((resolve) => setTimeout(resolve, 600));
       setSuccess(true);
       setTimeout(() => {
         router.push("/login");

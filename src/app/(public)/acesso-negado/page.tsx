@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth } from "@/contexts/AuthContext";
 
 export default function AcessoNegado() {
-  const { user } = useAuth();
+  const user = { email: "cliente@demo.com" };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
