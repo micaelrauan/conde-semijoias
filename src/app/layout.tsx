@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
-import { SessionProvider } from "@/components/providers/SessionProvider";
 import { CartProvider } from "@/contexts/CartContext";
 import NavbarWrapper from "@/components/NavbarWrapper";
 import MainWrapper from "@/components/MainWrapper";
@@ -50,13 +50,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black`}
         style={{ background: "#ffffff", color: "#000000" }}
       >
-        <SessionProvider>
+        <ClerkProvider>
           <CartProvider>
             <NavbarWrapper />
             <CartSidebar />
             <MainWrapper>{children}</MainWrapper>
           </CartProvider>
-        </SessionProvider>
+        </ClerkProvider>
       </body>
     </html>
   );
