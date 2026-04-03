@@ -8,7 +8,7 @@ export default function NavbarWrapper() {
   const pathname = usePathname();
 
   // Rotas que usam a navbar simplificada
-  const authRoutes = ["/login", "/cadastro", "/conta"];
+  const authRoutes = ["/conta"];
   const isAuthPage = authRoutes.includes(pathname);
 
   if (isAuthPage) {

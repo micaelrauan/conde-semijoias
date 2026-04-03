@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { SignInButton } from "@clerk/nextjs";
 
 export default function RecuperarSenhaPage() {
   const [email, setEmail] = useState("");
@@ -60,12 +61,14 @@ export default function RecuperarSenhaPage() {
               Verifique sua caixa de entrada e siga as instruções para redefinir
               sua senha.
             </p>
-            <Link
-              href="/login"
-              className="inline-block text-black font-light hover:underline"
-            >
-              ← Voltar para login
-            </Link>
+            <SignInButton mode="modal">
+              <button
+                type="button"
+                className="inline-block text-black font-light hover:underline"
+              >
+                ← Voltar para login
+              </button>
+            </SignInButton>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -105,12 +108,14 @@ export default function RecuperarSenhaPage() {
 
             {/* Back to Login */}
             <div className="text-center">
-              <Link
-                href="/login"
-                className="text-sm font-light text-gray-600 hover:text-black transition-colors"
-              >
-                ← Voltar para login
-              </Link>
+              <SignInButton mode="modal">
+                <button
+                  type="button"
+                  className="text-sm font-light text-gray-600 hover:text-black transition-colors"
+                >
+                  ← Voltar para login
+                </button>
+              </SignInButton>
             </div>
           </form>
         )}

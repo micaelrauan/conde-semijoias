@@ -10,7 +10,7 @@ export default function MainWrapper({
   const pathname = usePathname();
 
   // Rotas que usam a navbar simplificada (sem padding extra)
-  const authRoutes = ["/login", "/cadastro", "/conta"];
+  const authRoutes = ["/conta"];
   const isAuthPage = authRoutes.includes(pathname);
 
   if (isAuthPage) {

@@ -31,7 +31,7 @@ export default function RedefinirSenhaPage() {
       await new Promise((resolve) => setTimeout(resolve, 600));
       setSuccess(true);
       setTimeout(() => {
-        router.push("/login");
+        router.push("/home");
       }, 2000);
     } catch (err: any) {
       console.error("Password update error:", err);
@@ -71,7 +71,7 @@ export default function RedefinirSenhaPage() {
               Senha redefinida!
             </h2>
             <p className="text-green-700 font-light mb-4">
-              Sua senha foi alterada com sucesso. Redirecionando para login...
+              Sua senha foi alterada com sucesso. Redirecionando para entrar...
             </p>
           </div>
         ) : (

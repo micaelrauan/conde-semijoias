@@ -2,6 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import {
+  SignInButton,
+  SignUpButton,
+  UserButton,
+  useAuth,
+} from "@clerk/nextjs";
 import { useCart } from "@/contexts/CartContext";
 import UserMenu from "@/components/header/UserMenu";
 
@@ -11,6 +17,7 @@ export default function Navbar() {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [currentPromo, setCurrentPromo] = useState(0);
+  const { isSignedIn } = useAuth();
   const { toggleCart, itemCount } = useCart();
 
   const promos = [
@@ -391,11 +398,54 @@ export default function Navbar() {
                 </Link>
               </div>
 
+              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 space-y-3">
+                {!isSignedIn && (
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm font-medium text-black">Entrar na conta</p>
+                      <p className="mt-1 text-sm text-gray-600">
+                        Use o Clerk para acessar seu perfil.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <SignInButton mode="modal">
+                        <button
+                          type="button"
+                          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-4 text-sm font-medium text-gray-700 transition-colors hover:border-gray-300 hover:text-black"
+                        >
+                          Entrar
+                        </button>
+                      </SignInButton>
+                      <SignUpButton mode="modal">
+                        <button
+                          type="button"
+                          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-black px-4 text-sm font-medium text-white transition-colors hover:bg-gray-800"
+                        >
+                          Criar Conta
+                        </button>
+                      </SignUpButton>
+                    </div>
+                  </div>
+                )}
+
+                {isSignedIn && (
+                  <div className="flex items-center gap-3">
+                    <UserButton />
+                    <div>
+                      <p className="text-sm font-medium text-black">Minha conta</p>
+                      <p className="text-sm text-gray-600">
+                        Acesse seu perfil direto pelo Clerk.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Mobile Icons */}
-              <div className="flex justify-around pt-4 border-t border-gray-200">
+              <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-200">
                 <Link
                   href="/favoritos"
-                  className="flex flex-col items-center text-gray-600"
+                  className="flex min-h-11 flex-col items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-50 hover:text-black"
                 >
                   <svg
                     className="w-6 h-6"
@@ -413,27 +463,8 @@ export default function Navbar() {
                   <span className="text-xs mt-1 font-light">Favoritos</span>
                 </Link>
                 <Link
-                  href="/minha-conta"
-                  className="flex flex-col items-center text-gray-600"
-                >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                  <span className="text-xs mt-1 font-light">Conta</span>
-                </Link>
-                <Link
                   href="/carrinho"
-                  className="flex flex-col items-center relative text-gray-600"
+                  className="flex min-h-11 flex-col items-center justify-center relative rounded-xl text-gray-600 transition-colors hover:bg-gray-50 hover:text-black"
                 >
                   <svg
                     className="w-6 h-6"

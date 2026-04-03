@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { SignInButton } from "@clerk/nextjs";
 
 export default function AcessoNegado() {
   return (
@@ -25,12 +26,14 @@ export default function AcessoNegado() {
               Voltar para Loja
             </Link>
 
-            <Link
-              href="/login"
-              className="block w-full px-6 py-3 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Fazer Login com Outra Conta
-            </Link>
+            <SignInButton mode="modal">
+              <button
+                type="button"
+                className="block w-full px-6 py-3 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Fazer Login com Outra Conta
+              </button>
+            </SignInButton>
           </div>
 
           <div className="mt-8 pt-6 border-t border-gray-200">
