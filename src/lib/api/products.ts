@@ -152,6 +152,26 @@ export async function getProductBySlug(slug: string) {
 }
 
 /**
+ * Fetches a single product by id.
+ */
+export async function getProductById(id: string | number) {
+  const numericId = Number(id);
+
+  if (!Number.isFinite(numericId) || numericId <= 0) {
+    throw new Error("ID de produto invalido");
+  }
+
+  const response = await fetch(getApiUrl(`/api/produtos/${numericId}`));
+
+  if (!response.ok) {
+    throw new Error("Produto nao encontrado");
+  }
+
+  const data = (await response.json()) as NuvemshopProduct;
+  return mapProduct(data);
+}
+
+/**
  * Fetches products by category slug.
  */
 export async function getProductsByCategory(categorySlug: string) {
