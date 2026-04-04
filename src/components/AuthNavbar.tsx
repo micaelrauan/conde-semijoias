@@ -2,12 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  SignInButton,
-  SignUpButton,
-  UserButton,
-  useAuth,
-} from "@clerk/nextjs";
+import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
 
 export default function AuthNavbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,7 +12,7 @@ export default function AuthNavbar() {
     <nav className="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="shrink-0">
+          <Link href="/" prefetch className="shrink-0">
             <h1 className="text-xl font-light tracking-wider text-black">
               CONDE SEMIJOIAS
             </h1>
@@ -38,9 +33,7 @@ export default function AuthNavbar() {
                 </SignUpButton>
               </div>
             )}
-            {isSignedIn && (
-              <UserButton />
-            )}
+            {isSignedIn && <UserButton />}
           </div>
 
           <button
@@ -79,7 +72,9 @@ export default function AuthNavbar() {
               {!isSignedIn && (
                 <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 space-y-3">
                   <div>
-                    <p className="text-sm font-medium text-black">Acesse sua conta</p>
+                    <p className="text-sm font-medium text-black">
+                      Acesse sua conta
+                    </p>
                     <p className="mt-1 text-sm text-gray-600">
                       Entre ou crie uma conta para continuar.
                     </p>
@@ -109,8 +104,12 @@ export default function AuthNavbar() {
                 <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 flex items-center gap-3">
                   <UserButton />
                   <div>
-                    <p className="text-sm font-medium text-black">Minha conta</p>
-                    <p className="text-sm text-gray-600">Gerencie seu perfil no Clerk.</p>
+                    <p className="text-sm font-medium text-black">
+                      Minha conta
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Gerencie seu perfil no Clerk.
+                    </p>
                   </div>
                 </div>
               )}

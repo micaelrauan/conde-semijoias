@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import CheckoutButton from "@/components/CheckoutButton";
 
@@ -16,24 +14,7 @@ export default function CarrinhoPage() {
     removeItem,
     clearCart,
     isLoading,
-    openCart,
   } = useCart();
-  const router = useRouter();
-
-  // Abrir sidebar no desktop, mostrar página no mobile
-  useEffect(() => {
-    const checkWidth = () => {
-      if (window.innerWidth >= 768) {
-        // md breakpoint
-        openCart();
-        router.push("/");
-      }
-    };
-
-    checkWidth();
-    window.addEventListener("resize", checkWidth);
-    return () => window.removeEventListener("resize", checkWidth);
-  }, [router, openCart]);
 
   const formatCurrency = (valueInCents: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -68,6 +49,7 @@ export default function CarrinhoPage() {
           </div>
           <Link
             href="/"
+            prefetch
             className="text-gray-600 hover:text-black transition-colors"
           >
             <svg
@@ -110,6 +92,7 @@ export default function CarrinhoPage() {
             </p>
             <Link
               href="/"
+              prefetch
               className="bg-black text-white px-8 py-3 rounded-lg font-light hover:bg-gray-800 transition-colors"
             >
               Explorar Produtos
@@ -130,8 +113,10 @@ export default function CarrinhoPage() {
                       <Image
                         src={item.image}
                         alt={item.name}
-                        fill
-                        className="object-cover"
+                        width={100}
+                        height={100}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">

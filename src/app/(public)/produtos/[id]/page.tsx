@@ -190,8 +190,10 @@ export default function ProdutoDetalhePage() {
                     <Image
                       src={image}
                       alt={`${product.name} ${index + 1}`}
-                      fill
-                      className="object-cover"
+                      width={100}
+                      height={100}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
                     />
                   </button>
                 ))}

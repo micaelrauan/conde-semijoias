@@ -2,12 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import {
-  SignInButton,
-  SignUpButton,
-  UserButton,
-  useAuth,
-} from "@clerk/nextjs";
+import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
 import { useCart } from "@/contexts/CartContext";
 import UserMenu from "@/components/header/UserMenu";
 
@@ -18,7 +13,7 @@ export default function Navbar() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [currentPromo, setCurrentPromo] = useState(0);
   const { isSignedIn } = useAuth();
-  const { toggleCart, itemCount } = useCart();
+  const { itemCount } = useCart();
 
   const promos = [
     "Frete gratis para compras acima de R$ 299",
@@ -69,18 +64,18 @@ export default function Navbar() {
     <>
       {/* Top Bar - Carousel de Promocoes */}
       <div
-        className={`bg-[#670006] text-white py-2 fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-out ${
+        className={`bg-[#670006] text-white py-2 fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out ${
           isVisible ? "translate-y-0" : "-translate-y-full"
-        }`}
+        } [font-family:var(--font-poppins)] font-light`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 flex-1">
-              <div className="relative h-6 overflow-hidden flex-1 max-w-md">
+              <div className="relative h-5 md:h-6 overflow-hidden flex-1 max-w-md text-xs md:text-sm">
                 {promos.map((promo, index) => (
                   <div
                     key={index}
-                    className={`absolute inset-0 flex items-center text-sm font-light transition-all duration-700 ease-in-out ${
+                    className={`absolute inset-0 flex items-center font-light transition-all duration-300 ease-in-out ${
                       index === currentPromo
                         ? "opacity-100 translate-x-0"
                         : index < currentPromo
@@ -92,24 +87,9 @@ export default function Navbar() {
                   </div>
                 ))}
               </div>
-
-              <div className="flex items-center gap-1.5">
-                {promos.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentPromo(index)}
-                    className={`h-1 rounded-full transition-all duration-300 ${
-                      index === currentPromo
-                        ? "w-4 bg-white/80"
-                        : "w-1 bg-white/30 hover:bg-white/50"
-                    }`}
-                    aria-label={`Ir para promocao ${index + 1}`}
-                  />
-                ))}
-              </div>
             </div>
 
-            <div className="flex items-center gap-6 text-sm font-light">
+            <div className="hidden md:flex items-center gap-6 text-sm font-light">
               <Link
                 href="/contato"
                 className="text-white/80 hover:text-white transition-colors"
@@ -129,16 +109,16 @@ export default function Navbar() {
 
       {/* Navbar Principal */}
       <nav
-        className={`bg-white shadow-md fixed left-0 right-0 z-40 transition-all duration-700 ease-out ${
+        className={`bg-white shadow-md fixed left-0 right-0 z-40 transition-all duration-300 ease-out ${
           isVisible ? "translate-y-0" : "-translate-y-full"
-        }`}
+        } [font-family:var(--font-poppins)] font-light`}
         style={{ top: "40px" }}
       >
         {/* Main Navbar */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20 gap-8">
             {/* Logo */}
-            <Link href="/" className="shrink-0">
+            <Link href="/" prefetch className="shrink-0">
               <h1 className="text-2xl font-light tracking-wider text-black">
                 CONDE SEMIJOIAS
               </h1>
@@ -148,6 +128,7 @@ export default function Navbar() {
             <div className="hidden lg:flex items-center gap-6 flex-1 justify-center">
               <Link
                 href="/produtos"
+                prefetch
                 className="text-gray-600 hover:text-black font-light transition-colors whitespace-nowrap"
               >
                 Produtos
@@ -248,8 +229,8 @@ export default function Navbar() {
                 <UserMenu />
 
                 {/* Shopping Cart */}
-                <button
-                  onClick={toggleCart}
+                <Link
+                  href="/carrinho"
                   className="relative text-gray-600 hover:text-black transition-colors"
                 >
                   <svg
@@ -270,7 +251,7 @@ export default function Navbar() {
                       {itemCount}
                     </span>
                   )}
-                </button>
+                </Link>
               </div>
             </div>
 
@@ -362,12 +343,14 @@ export default function Navbar() {
               <div className="flex flex-col space-y-2">
                 <Link
                   href="/"
+                  prefetch
                   className="py-2 text-gray-600 hover:text-black font-light"
                 >
                   Início
                 </Link>
                 <Link
                   href="/produtos"
+                  prefetch
                   className="py-2 text-gray-600 hover:text-black font-light"
                 >
                   Produtos
@@ -402,7 +385,9 @@ export default function Navbar() {
                 {!isSignedIn && (
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm font-medium text-black">Entrar na conta</p>
+                      <p className="text-sm font-light text-black">
+                        Entrar na conta
+                      </p>
                       <p className="mt-1 text-sm text-gray-600">
                         Use o Clerk para acessar seu perfil.
                       </p>
@@ -411,7 +396,7 @@ export default function Navbar() {
                       <SignInButton mode="modal">
                         <button
                           type="button"
-                          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-4 text-sm font-medium text-gray-700 transition-colors hover:border-gray-300 hover:text-black"
+                          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-4 text-sm font-light text-gray-700 transition-colors hover:border-gray-300 hover:text-black"
                         >
                           Entrar
                         </button>
@@ -419,7 +404,7 @@ export default function Navbar() {
                       <SignUpButton mode="modal">
                         <button
                           type="button"
-                          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-black px-4 text-sm font-medium text-white transition-colors hover:bg-gray-800"
+                          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-black px-4 text-sm font-light text-white transition-colors hover:bg-gray-800"
                         >
                           Criar Conta
                         </button>
@@ -432,7 +417,9 @@ export default function Navbar() {
                   <div className="flex items-center gap-3">
                     <UserButton />
                     <div>
-                      <p className="text-sm font-medium text-black">Minha conta</p>
+                      <p className="text-sm font-light text-black">
+                        Minha conta
+                      </p>
                       <p className="text-sm text-gray-600">
                         Acesse seu perfil direto pelo Clerk.
                       </p>
@@ -496,12 +483,12 @@ export default function Navbar() {
       <div
         className={`fixed top-0 left-0 right-0 z-40 bg-white shadow-lg transition-transform duration-500 ease-in-out ${
           !isVisible ? "translate-y-0" : "-translate-y-full"
-        }`}
+        } [font-family:var(--font-poppins)] font-light`}
       >
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex justify-between items-center gap-8">
             {/* Logo compacta */}
-            <Link href="/" className="shrink-0">
+            <Link href="/" prefetch className="shrink-0">
               <h1 className="text-lg font-light tracking-wider text-black whitespace-nowrap">
                 CONDE SEMIJOIAS
               </h1>
@@ -511,6 +498,7 @@ export default function Navbar() {
             <div className="hidden lg:flex items-center gap-5 flex-1 justify-center">
               <Link
                 href="/produtos"
+                prefetch
                 className="text-gray-600 hover:text-black font-light transition-colors whitespace-nowrap text-sm"
               >
                 Produtos
@@ -607,8 +595,8 @@ export default function Navbar() {
 
                 <UserMenu compact />
 
-                <button
-                  onClick={toggleCart}
+                <Link
+                  href="/carrinho"
                   className="relative text-gray-600 hover:text-black transition-colors"
                 >
                   <svg
@@ -629,7 +617,7 @@ export default function Navbar() {
                       {itemCount}
                     </span>
                   )}
-                </button>
+                </Link>
               </div>
             </div>
           </div>

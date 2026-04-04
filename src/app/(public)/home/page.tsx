@@ -11,18 +11,11 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentSlideMobile, setCurrentSlideMobile] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const { addItem } = useCart();
 
   const heroSlides = [
-    {
-      title: "Essência da Elegância",
-      subtitle: "Coleção Exclusiva 2026",
-      cta: "Descobrir Coleção",
-      link: "/produtos?categoria=novidades",
-      image: "/hero/slide1.png",
-      textColor: "text-white",
-    },
     {
       title: "Clássicos Reinventados",
       subtitle: "Sofisticação Atemporal",
@@ -36,8 +29,7 @@ export default function HomePage() {
       subtitle: "A Beleza nos Detalhes",
       cta: "Explorar",
       link: "/produtos?categoria=minimalista",
-      image:
-        "https://images.unsplash.com/photo-1496217590455-aa63a8350eea?q=80&w=1920&auto=format&fit=crop",
+      image: "/hero/slide3.png",
       textColor: "text-white",
     },
     {
@@ -45,17 +37,34 @@ export default function HomePage() {
       subtitle: "Leveza e Estilo",
       cta: "Comprar Agora",
       link: "/produtos?categoria=verao",
-      image:
-        "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?q=80&w=1920&auto=format&fit=crop",
+      image: "/hero/slide3.png",
+      textColor: "text-white",
+    },
+  ];
+
+  const heroSlidesMobile = [
+    {
+      title: "Clássicos Reinventados",
+      subtitle: "Sofisticação Atemporal",
+      cta: "Ver Detalhes",
+      link: "/produtos?categoria=classicos",
+      image: "/hero/mobile/slide1.png",
       textColor: "text-white",
     },
     {
-      title: "Noites Inesquecíveis",
-      subtitle: "Looks para Brilhar",
-      cta: "Ver Vestidos",
-      link: "/produtos?categoria=festa",
-      image:
-        "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?q=80&w=1920&auto=format&fit=crop",
+      title: "Luxo Minimalista",
+      subtitle: "A Beleza nos Detalhes",
+      cta: "Explorar",
+      link: "/produtos?categoria=minimalista",
+      image: "/hero/mobile/slide2.png",
+      textColor: "text-white",
+    },
+    {
+      title: "O luxo está na essência",
+      subtitle: "Leveza e Estilo",
+      cta: "Comprar Agora",
+      link: "/produtos?categoria=verao",
+      image: "/hero/mobile/slide3.png",
       textColor: "text-white",
     },
   ];
@@ -67,9 +76,10 @@ export default function HomePage() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+      setCurrentSlideMobile((prev) => (prev + 1) % heroSlidesMobile.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [heroSlides.length]);
+  }, [heroSlides.length, heroSlidesMobile.length]);
 
   const loadProducts = async () => {
     try {
@@ -119,9 +129,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Carousel */}
+      {/* Hero Carousel - Desktop */}
       <section
-        className="relative h-[65vh] min-h-115 max-h-195 overflow-hidden"
+        className="relative h-[65vh] min-h-115 max-h-195 overflow-hidden hidden md:block"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -144,15 +154,22 @@ export default function HomePage() {
                   alt={slide.title}
                   fill
                   sizes="100vw"
-                  className="object-cover object-top"
+                  className={`object-cover ${
+                    index === 0
+                      ? "object-[0%_center] md:object-[70%_center]"
+                      : index === 1
+                        ? "object-[100%_center] md:object-[30%_center]"
+                        : "object-[0%_center] md:object-center"
+                  }`}
                   priority={index === 0}
+                  loading={index === 0 ? undefined : "lazy"}
                 />
               </div>
 
               {/* Overlay for text readability */}
               <div
-                className={`absolute inset-0 ${
-                  index === 0
+                className={`absolute inset-0 hidden md:block ${
+                  index === 1
                     ? "bg-linear-to-l from-black/55 via-black/25 to-transparent"
                     : slide.textColor === "text-white"
                       ? "bg-linear-to-r from-black/50 via-black/30 to-transparent"
@@ -162,13 +179,13 @@ export default function HomePage() {
 
               {/* Content */}
               <div
-                className={`absolute inset-0 flex items-center justify-center ${
-                  index === 0 ? "md:justify-end" : "md:justify-start"
+                className={`absolute inset-0 hidden md:flex items-center justify-center ${
+                  index === 1 ? "md:justify-end" : "md:justify-start"
                 }`}
               >
                 <div
                   className={`relative z-20 px-6 md:px-16 max-w-2xl ${slide.textColor} ${
-                    index === 0 ? "md:text-right" : "md:text-left"
+                    index === 1 ? "md:text-right" : "md:text-left"
                   }`}
                 >
                   <h1 className="text-5xl md:text-7xl font-light mb-6 tracking-tight animate-fade-in drop-shadow-lg">
@@ -197,7 +214,7 @@ export default function HomePage() {
         </div>
 
         {/* Navigation Dots */}
-        <div className="absolute bottom-8 left-0 right-0 z-30 flex justify-center gap-3">
+        <div className="absolute bottom-4 md:bottom-8 left-0 right-0 z-30 flex justify-center gap-3">
           {heroSlides.map((_, index) => (
             <button
               key={index}
@@ -207,8 +224,86 @@ export default function HomePage() {
               }}
               className={`transition-all duration-300 rounded-full ${
                 index === currentSlide
-                  ? "w-12 h-3 bg-white"
-                  : "w-3 h-3 bg-white/50 hover:bg-white/75"
+                  ? "w-8 md:w-12 h-3 bg-white"
+                  : "w-2 md:w-3 h-2 md:h-3 bg-white/50 hover:bg-white/75"
+              }`}
+              aria-label={`Ir para slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Hero Carousel - Mobile */}
+      <section
+        className="relative h-[65vh] min-h-115 overflow-hidden md:hidden"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Slides Container */}
+        <div className="relative h-full">
+          {heroSlidesMobile.map((slide, index) => (
+            <Link
+              key={index}
+              href={slide.link}
+              className={`absolute inset-0 block transition-all duration-1000 ease-in-out ${
+                index === currentSlideMobile
+                  ? "opacity-100 scale-100"
+                  : "opacity-0 scale-105 pointer-events-none"
+              }`}
+            >
+              {/* Background Image */}
+              <div className="absolute inset-0">
+                <Image
+                  src={slide.image}
+                  alt={slide.title}
+                  fill
+                  sizes="100vw"
+                  className="object-cover object-center"
+                  priority={index === 0}
+                  loading={index === 0 ? undefined : "lazy"}
+                />
+              </div>
+
+              {/* Overlay for text readability */}
+              <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/30 to-transparent"></div>
+
+              {/* Content */}
+              <div className="absolute inset-0 flex items-end justify-center">
+                <div className="relative z-20 px-4 pb-8 text-center w-full">
+                  <h1 className="text-3xl font-light mb-2 tracking-tight animate-fade-in drop-shadow-lg text-white">
+                    {slide.title}
+                  </h1>
+                  <p
+                    className="text-lg font-light mb-4 tracking-wide animate-fade-in drop-shadow-lg text-white"
+                    style={{ animationDelay: "200ms" }}
+                  >
+                    {slide.subtitle}
+                  </p>
+                  <span
+                    className="inline-block px-8 py-3 text-xs font-medium tracking-widest uppercase transition-all duration-300 animate-fade-in drop-shadow-lg bg-white text-black hover:bg-gray-100"
+                    style={{ animationDelay: "400ms" }}
+                  >
+                    {slide.cta}
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Navigation Dots */}
+        <div className="absolute bottom-4 left-0 right-0 z-30 flex justify-center gap-2">
+          {heroSlidesMobile.map((_, index) => (
+            <button
+              key={index}
+              onClick={(e) => {
+                e.preventDefault();
+                setCurrentSlideMobile(index);
+              }}
+              className={`transition-all duration-300 rounded-full ${
+                index === currentSlideMobile
+                  ? "w-6 h-2 bg-white"
+                  : "w-2 h-2 bg-white/50 hover:bg-white/75"
               }`}
               aria-label={`Ir para slide ${index + 1}`}
             />
@@ -223,11 +318,18 @@ export default function HomePage() {
             href="/produtos?categoria=outlet"
             className="group relative h-125 bg-gray-100 overflow-hidden"
           >
-            <div className="absolute inset-0 bg-linear-to-t from-gray-200 to-gray-100"></div>
-            <div className="absolute bottom-0 left-0 right-0 p-8 text-black">
+            <Image
+              src="/assets/home/outlet.png"
+              alt="Outlet"
+              fill
+              className="object-cover"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-linear-to-t from-gray-900/70 to-transparent"></div>
+            <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
               <h2 className="text-4xl font-light mb-2">Outlet</h2>
               <p className="text-lg font-light mb-4">Até 70% OFF</p>
-              <span className="inline-block border-b-2 border-black pb-1 text-sm font-medium tracking-widest uppercase group-hover:tracking-wider transition-all">
+              <span className="inline-block border-b-2 border-white pb-1 text-sm font-medium tracking-widest uppercase group-hover:tracking-wider transition-all">
                 Ver Tudo
               </span>
             </div>
@@ -237,11 +339,18 @@ export default function HomePage() {
             href="/produtos?categoria=novidades"
             className="group relative h-125 bg-gray-100 overflow-hidden"
           >
-            <div className="absolute inset-0 bg-linear-to-t from-gray-200 to-gray-100"></div>
-            <div className="absolute bottom-0 left-0 right-0 p-8 text-black">
+            <Image
+              src="/assets/home/novidades.png"
+              alt="Novidades"
+              fill
+              className="object-cover"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-linear-to-t from-gray-900/70 to-transparent"></div>
+            <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
               <h2 className="text-4xl font-light mb-2">Novidades</h2>
               <p className="text-lg font-light mb-4">Recém Chegados</p>
-              <span className="inline-block border-b-2 border-black pb-1 text-sm font-medium tracking-widest uppercase group-hover:tracking-wider transition-all">
+              <span className="inline-block border-b-2 border-white pb-1 text-sm font-medium tracking-widest uppercase group-hover:tracking-wider transition-all">
                 Comprar Agora
               </span>
             </div>
@@ -282,6 +391,7 @@ export default function HomePage() {
                           fill
                           sizes="(max-width: 768px) 50vw, 25vw"
                           className="object-cover group-hover:scale-105 transition-transform duration-700"
+                          loading="lazy"
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
@@ -312,6 +422,7 @@ export default function HomePage() {
           <div className="text-center mt-12">
             <Link
               href="/produtos"
+              prefetch
               className="inline-block bg-black text-white px-12 py-4 text-sm font-medium tracking-widest uppercase hover:bg-gray-800 transition-all"
             >
               Ver Todos os Produtos

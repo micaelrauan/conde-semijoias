@@ -126,6 +126,7 @@ export default function ProdutosPage() {
         <nav className="flex items-center space-x-2 text-sm mb-8">
           <Link
             href="/"
+            prefetch
             className="text-gray-500 hover:text-black transition-colors font-light"
           >
             Início
@@ -426,6 +427,7 @@ export default function ProdutosPage() {
                               alt={product.name}
                               fill
                               className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                              loading="lazy"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
@@ -525,6 +527,7 @@ export default function ProdutosPage() {
                               alt={product.name}
                               fill
                               className="object-cover group-hover:scale-110 transition-transform duration-500"
+                              loading="lazy"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
