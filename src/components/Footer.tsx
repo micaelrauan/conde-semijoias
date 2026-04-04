@@ -10,17 +10,19 @@ export default function Footer() {
         {/* Main Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Logo e Descrição */}
-          <div className="flex flex-col gap-4">
-            <div className="relative w-40 h-20">
+          <div className="flex flex-col items-start gap-6">
+            <div className="relative w-48 h-24 sm:w-56 sm:h-28 md:w-60 md:h-32 lg:w-72 lg:h-40 shrink-0">
               <Image
                 src="/logo/conde-semijoias.png"
                 alt="Conde Semijoias"
                 fill
                 className="object-contain"
                 loading="lazy"
+                quality={95}
+                sizes="(max-width: 640px) 192px, (max-width: 768px) 224px, (max-width: 1024px) 240px, 288px"
               />
             </div>
-            <p className="text-gray-400 font-light text-sm leading-relaxed">
+            <p className="text-gray-400 font-light text-sm leading-relaxed max-w-xs">
               Semijoias de qualidade, design exclusivo e entrega rápida para
               você brilhar sempre.
             </p>
@@ -248,10 +250,10 @@ export default function Footer() {
               Formas de Pagamento
             </p>
             <div className="flex justify-center items-center gap-4 flex-wrap">
-              <span className="text-gray-400 text-xs">💳 Cartão</span>
-              <span className="text-gray-400 text-xs">🔄 Parcelado</span>
-              <span className="text-gray-400 text-xs">📱 Pix</span>
-              <span className="text-gray-400 text-xs">🏦 Transferência</span>
+              <span className="text-gray-400 text-xs">Cartão</span>
+              <span className="text-gray-400 text-xs">Parcelado</span>
+              <span className="text-gray-400 text-xs">Pix</span>
+              <span className="text-gray-400 text-xs">Transferência</span>
             </div>
           </div>
         </div>

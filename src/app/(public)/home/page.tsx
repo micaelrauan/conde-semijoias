@@ -83,8 +83,8 @@ export default function HomePage() {
 
   const loadProducts = async () => {
     try {
-      const data = await getProducts();
-      setProducts(data.slice(0, 8)); // Apenas 8 produtos na home
+      const featuredData = await getProducts({ per_page: 8 });
+      setProducts(featuredData.slice(0, 8));
     } catch (error) {
       console.error("Erro ao carregar produtos:", error);
     } finally {
@@ -324,6 +324,7 @@ export default function HomePage() {
               fill
               className="object-cover"
               loading="lazy"
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
             <div className="absolute inset-0 bg-linear-to-t from-gray-900/70 to-transparent"></div>
             <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
@@ -345,6 +346,7 @@ export default function HomePage() {
               fill
               className="object-cover"
               loading="lazy"
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
             <div className="absolute inset-0 bg-linear-to-t from-gray-900/70 to-transparent"></div>
             <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
@@ -359,13 +361,13 @@ export default function HomePage() {
       </section>
 
       {/* Products Grid */}
-      <section className="py-16 px-4 md:px-8 bg-gray-50">
+      <section className="py-10 sm:py-16 px-4 sm:px-6 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-light mb-4 tracking-tight">
+          <div className="text-center mb-10">
+            <h2 className="text-[2rem] font-light mb-2 tracking-tight">
               Produtos em Destaque
             </h2>
-            <p className="text-gray-600 font-light">
+            <p className="text-[#666] text-[0.95rem] font-light mb-10">
               Selecionamos o melhor para você
             </p>
           </div>
@@ -375,11 +377,11 @@ export default function HomePage() {
               <div className="w-16 h-16 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
               {products.map((product, index) => (
                 <div
                   key={product.id}
-                  className="group bg-white"
+                  className="group bg-white transition-all duration-300"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   <Link href={`/produtos/${product.id}`} className="block">
@@ -390,7 +392,7 @@ export default function HomePage() {
                           alt={product.name}
                           fill
                           sizes="(max-width: 768px) 50vw, 25vw"
-                          className="object-cover group-hover:scale-105 transition-transform duration-700"
+                          className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.04]"
                           loading="lazy"
                         />
                       ) : (
@@ -399,10 +401,19 @@ export default function HomePage() {
                         </div>
                       )}
                     </div>
-                    <h3 className="text-sm font-light mb-2 text-black group-hover:text-gray-600 transition-colors line-clamp-2">
+                    <h3
+                      className="text-[0.9rem] font-light mb-3 text-black group-hover:text-gray-600 transition-colors"
+                      style={{
+                        overflow: "hidden",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                      }}
+                    >
                       {product.name}
                     </h3>
-                    <p className="text-lg font-medium text-black mb-3">
+                    <div className="h-px bg-gray-200 mb-3"></div>
+                    <p className="text-xl font-semibold text-[#6B0000] mb-3">
                       R$ {product.price.toFixed(2)}
                     </p>
                   </Link>
@@ -410,7 +421,7 @@ export default function HomePage() {
                     onClick={() =>
                       addItem(product, product.variant_id ?? Number(product.id))
                     }
-                    className="w-full py-3 bg-black text-white text-xs font-medium tracking-widest uppercase hover:bg-gray-800 transition-colors"
+                    className="w-full py-3 bg-black text-white text-xs font-medium tracking-widest uppercase hover:bg-gray-800 transition-colors group-hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)]"
                   >
                     Adicionar
                   </button>
@@ -423,7 +434,7 @@ export default function HomePage() {
             <Link
               href="/produtos"
               prefetch
-              className="inline-block bg-black text-white px-12 py-4 text-sm font-medium tracking-widest uppercase hover:bg-gray-800 transition-all"
+              className="inline-flex items-center justify-center min-w-70 bg-black text-white px-10 py-4 text-sm font-medium tracking-widest uppercase hover:bg-gray-800 transition-all"
             >
               Ver Todos os Produtos
             </Link>
@@ -432,32 +443,70 @@ export default function HomePage() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-16 px-4 md:px-8 bg-white border-t border-b border-gray-200">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-          <div>
-            <div className="text-4xl mb-4">🚚</div>
-            <h3 className="text-lg font-medium mb-2 tracking-wide">
+      <section className="py-12 px-4 sm:px-8 bg-white border-t border-b border-gray-200">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-0 text-center">
+          <div className="benefit-item md:px-10">
+            <div className="mb-4 flex justify-center">
+              <svg
+                className="w-8 h-8 text-black"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <rect x="2" y="7" width="12" height="8" rx="1" />
+                <path d="M14 10h4l3 2v3h-7z" />
+                <circle cx="7" cy="17" r="1.5" />
+                <circle cx="17" cy="17" r="1.5" />
+              </svg>
+            </div>
+            <h3 className="text-[0.8rem] font-medium mb-2 tracking-[0.12em] uppercase">
               FRETE GRÁTIS
             </h3>
-            <p className="text-sm text-gray-600 font-light">
+            <p className="text-[0.85rem] text-[#777] font-light">
               Para compras acima de R$ 799
             </p>
           </div>
-          <div>
-            <div className="text-4xl mb-4">💳</div>
-            <h3 className="text-lg font-medium mb-2 tracking-wide">
+          <div className="benefit-item md:px-10 md:border-l md:border-gray-200">
+            <div className="mb-4 flex justify-center">
+              <svg
+                className="w-8 h-8 text-black"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <path d="M2 10h20" />
+                <path d="M6 15h4" />
+              </svg>
+            </div>
+            <h3 className="text-[0.8rem] font-medium mb-2 tracking-[0.12em] uppercase">
               5% OFF NO PIX
             </h3>
-            <p className="text-sm text-gray-600 font-light">
+            <p className="text-[0.85rem] text-[#777] font-light">
               Ganhe desconto pagando com PIX
             </p>
           </div>
-          <div>
-            <div className="text-4xl mb-4">🔄</div>
-            <h3 className="text-lg font-medium mb-2 tracking-wide">
+          <div className="benefit-item md:px-10 md:border-l md:border-gray-200">
+            <div className="mb-4 flex justify-center">
+              <svg
+                className="w-8 h-8 text-black"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <path d="M7 7h10l-2.5-2.5" />
+                <path d="M17 17H7l2.5 2.5" />
+                <path d="M17 7a5 5 0 014.5 4" />
+                <path d="M7 17a5 5 0 01-4.5-4" />
+              </svg>
+            </div>
+            <h3 className="text-[0.8rem] font-medium mb-2 tracking-[0.12em] uppercase">
               TROCA GRÁTIS
             </h3>
-            <p className="text-sm text-gray-600 font-light">
+            <p className="text-[0.85rem] text-[#777] font-light">
               Primeira troca por nossa conta
             </p>
           </div>
@@ -465,12 +514,14 @@ export default function HomePage() {
       </section>
 
       {/* Newsletter Section */}
-      <section className="py-20 px-4 md:px-8 bg-gray-50">
-        <div className="max-w-2xl mx-auto text-center">
+      <section className="py-16 px-4 sm:px-8 bg-[#0f0f0f] text-white">
+        <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-light mb-4 tracking-tight">
             Cadastre-se e Ganhe
           </h2>
-          <p className="text-xl font-medium mb-8">15% OFF na Primeira Compra</p>
+          <p className="text-3xl md:text-4xl font-light mb-8 text-[#c9a96e]">
+            15% OFF na Primeira Compra
+          </p>
           <form
             onSubmit={handleNewsletter}
             className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
@@ -481,41 +532,41 @@ export default function HomePage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Seu melhor e-mail"
               required
-              className="flex-1 px-6 py-4 border border-gray-300 text-sm focus:outline-none focus:border-black transition-colors"
+              className="flex-1 px-6 py-4 border border-[#c9a96e]/50 bg-transparent text-sm text-white placeholder:text-white/60 focus:outline-none focus:border-[#c9a96e] transition-colors"
             />
             <button
               type="submit"
-              className="px-8 py-4 bg-black text-white text-sm font-medium tracking-widest uppercase hover:bg-gray-800 transition-colors whitespace-nowrap"
+              className="px-8 py-4 border border-[#c9a96e] text-white text-sm font-medium tracking-widest uppercase hover:bg-[#c9a96e] hover:text-black transition-colors whitespace-nowrap"
             >
               Cadastrar
             </button>
           </form>
-          <p className="text-xs text-gray-500 mt-4 font-light">
+          <p className="text-xs text-white/60 mt-4 font-light">
             *Desconto não cumulativo com outras promoções
           </p>
         </div>
       </section>
 
       {/* Brand Story Section */}
-      <section className="py-20 px-4 md:px-8 bg-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-light mb-8 tracking-tight">
+      <section className="py-20 px-4 sm:px-8 bg-white">
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="text-4xl md:text-[2.5rem] font-light mb-8 tracking-tight">
             Apaixone-se por Você Mesma
           </h2>
-          <div className="space-y-6 text-gray-700 font-light leading-relaxed">
-            <p className="text-lg">
-              Uma das principais marcas de e-commerce do Brasil, somos sinônimo
-              de uma moda que traduz as tendências mais atuais de forma
-              criativa, moderna e com identidade brasileira.
+          <div className="mx-auto max-w-160 space-y-6 text-gray-700 font-light leading-[1.9]">
+            <p className="text-lg leading-[1.9]">
+              Uma marca de semijoias que valoriza a elegância e o estilo em cada
+              detalhe, trazendo tendências atuais de forma moderna e com
+              identidade brasileira.
             </p>
-            <p className="text-lg">
-              Apostamos em looks e acessórios que representam o estilo de vida
-              de pessoas modernas e sofisticadas que refletem a essência
-              vibrante do brasileiro.
+            <p className="text-lg leading-[1.9]">
+              Apostamos em peças e acessórios que refletem a personalidade de
+              pessoas autênticas e confiantes, com um toque da essência vibrante
+              do Brasil.
             </p>
-            <p className="text-lg">
-              Produtos perfeitos para momentos casuais, formais ou noturnos.
-              Você é sempre o protagonista.
+            <p className="text-lg leading-[1.9]">
+              Semijoias ideais para momentos casuais, formais ou ocasiões
+              especiais. Você é sempre o protagonista.
             </p>
           </div>
           <div className="mt-12">

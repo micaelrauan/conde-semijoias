@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
     optimizeCss: true,
   },
   images: {
+    qualities: [75, 95],
     remotePatterns: [
       {
         protocol: "https",
