@@ -24,7 +24,7 @@ export default function ProdutosPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const { addItem } = useCart();
 
   useEffect(() => {
@@ -118,6 +118,130 @@ export default function ProdutosPage() {
       console.error("Erro ao adicionar ao carrinho:", error);
     }
   };
+
+  const resetFilters = () => {
+    setSearchQuery("");
+    setSelectedCategory("all");
+    setPriceRange([0, 10000]);
+    setSortBy("name");
+  };
+
+  const filtersContent = (
+    <>
+      {/* Busca */}
+      <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+        <h3 className="text-sm font-medium text-black mb-3 uppercase tracking-wider">
+          Buscar
+        </h3>
+        <div className="relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Pesquisar produtos..."
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black font-light text-sm transition-all"
+          />
+          <svg
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      {/* Categorias */}
+      <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+        <h3 className="text-sm font-medium text-black mb-4 uppercase tracking-wider">
+          Categorias
+        </h3>
+        <div className="space-y-2">
+          <button
+            onClick={() => setSelectedCategory("all")}
+            className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
+              selectedCategory === "all"
+                ? "bg-black text-white"
+                : "text-gray-700 hover:bg-gray-100"
+            } font-light text-sm`}
+          >
+            Todas as categorias
+          </button>
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
+                selectedCategory === cat.id
+                  ? "bg-black text-white"
+                  : "text-gray-700 hover:bg-gray-100"
+              } font-light text-sm`}
+            >
+              {cat.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Filtro de Preço */}
+      <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+        <h3 className="text-sm font-medium text-black mb-4 uppercase tracking-wider">
+          Faixa de Preço
+        </h3>
+        <div className="space-y-4">
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-gray-600 font-light">
+              {formatCurrency(priceRange[0])}
+            </span>
+            <span className="text-gray-600 font-light">
+              {formatCurrency(priceRange[1])}
+            </span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="10000"
+            step="50"
+            value={priceRange[1]}
+            onChange={(e) =>
+              setPriceRange([priceRange[0], Number(e.target.value)])
+            }
+            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+          />
+        </div>
+      </div>
+
+      {/* Ordenação */}
+      <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+        <h3 className="text-sm font-medium text-black mb-4 uppercase tracking-wider">
+          Ordenar Por
+        </h3>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black font-light text-sm transition-all"
+        >
+          <option value="name">Nome (A-Z)</option>
+          <option value="price-asc">Menor Preço</option>
+          <option value="price-desc">Maior Preço</option>
+        </select>
+      </div>
+
+      {/* Limpar Filtros */}
+      <button
+        onClick={resetFilters}
+        className="w-full py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-light text-sm"
+      >
+        Limpar Filtros
+      </button>
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-white">
@@ -222,128 +346,59 @@ export default function ProdutosPage() {
           </div>
         </div>
 
+        {/* Drawer de filtros (Mobile) */}
+        {showFilters && (
+          <div className="lg:hidden fixed inset-0 z-50">
+            <button
+              type="button"
+              aria-label="Fechar filtros"
+              className="absolute inset-0 bg-black/40"
+              onClick={() => setShowFilters(false)}
+            />
+
+            <div className="absolute right-0 top-0 h-full w-[88%] max-w-sm bg-white shadow-2xl overflow-y-auto">
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+                <h2 className="text-base font-medium text-black">Filtros</h2>
+                <button
+                  type="button"
+                  className="p-2 rounded-md hover:bg-gray-100"
+                  onClick={() => setShowFilters(false)}
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="p-4 space-y-5">{filtersContent}</div>
+
+              <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4">
+                <button
+                  type="button"
+                  onClick={() => setShowFilters(false)}
+                  className="w-full py-3 bg-black text-white rounded-lg font-light"
+                >
+                  Ver {filteredProducts.length} produtos
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar de Filtros */}
-          <aside
-            className={`lg:w-64 space-y-6 ${showFilters ? "block" : "hidden lg:block"}`}
-          >
-            {/* Busca */}
-            <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
-              <h3 className="text-sm font-medium text-black mb-3 uppercase tracking-wider">
-                Buscar
-              </h3>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Pesquisar produtos..."
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black font-light text-sm transition-all"
-                />
-                <svg
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-
-            {/* Categorias */}
-            <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
-              <h3 className="text-sm font-medium text-black mb-4 uppercase tracking-wider">
-                Categorias
-              </h3>
-              <div className="space-y-2">
-                <button
-                  onClick={() => setSelectedCategory("all")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                    selectedCategory === "all"
-                      ? "bg-black text-white"
-                      : "text-gray-700 hover:bg-gray-100"
-                  } font-light text-sm`}
-                >
-                  Todas as categorias
-                </button>
-                {categories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setSelectedCategory(cat.id)}
-                    className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                      selectedCategory === cat.id
-                        ? "bg-black text-white"
-                        : "text-gray-700 hover:bg-gray-100"
-                    } font-light text-sm`}
-                  >
-                    {cat.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Filtro de Preço */}
-            <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
-              <h3 className="text-sm font-medium text-black mb-4 uppercase tracking-wider">
-                Faixa de Preço
-              </h3>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600 font-light">
-                    {formatCurrency(priceRange[0])}
-                  </span>
-                  <span className="text-gray-600 font-light">
-                    {formatCurrency(priceRange[1])}
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="10000"
-                  step="50"
-                  value={priceRange[1]}
-                  onChange={(e) =>
-                    setPriceRange([priceRange[0], Number(e.target.value)])
-                  }
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
-                />
-              </div>
-            </div>
-
-            {/* Ordenação */}
-            <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
-              <h3 className="text-sm font-medium text-black mb-4 uppercase tracking-wider">
-                Ordenar Por
-              </h3>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black font-light text-sm transition-all"
-              >
-                <option value="name">Nome (A-Z)</option>
-                <option value="price-asc">Menor Preço</option>
-                <option value="price-desc">Maior Preço</option>
-              </select>
-            </div>
-
-            {/* Limpar Filtros */}
-            <button
-              onClick={() => {
-                setSearchQuery("");
-                setSelectedCategory("all");
-                setPriceRange([0, 10000]);
-                setSortBy("name");
-              }}
-              className="w-full py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-light text-sm"
-            >
-              Limpar Filtros
-            </button>
+          <aside className="hidden lg:block lg:w-64 space-y-6">
+            {filtersContent}
           </aside>
 
           {/* Grid/Lista de Produtos */}
@@ -407,7 +462,7 @@ export default function ProdutosPage() {
               <div
                 className={`${
                   viewMode === "grid"
-                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                    ? "grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6"
                     : "space-y-4"
                 }`}
               >
@@ -470,23 +525,23 @@ export default function ProdutosPage() {
                           </span>
                         )}
                         <Link href={`/produtos/${product.id}`}>
-                          <h3 className="text-lg font-light text-black mb-2 group-hover:text-gray-600 transition-colors line-clamp-2 min-h-14">
+                          <h3 className="text-sm sm:text-lg font-light text-black mb-2 group-hover:text-gray-600 transition-colors line-clamp-2 min-h-10 sm:min-h-14">
                             {product.name}
                           </h3>
                         </Link>
                         {product.description && (
-                          <p className="text-sm text-gray-600 font-light mb-4 line-clamp-2">
+                          <p className="hidden sm:block text-sm text-gray-600 font-light mb-4 line-clamp-2">
                             {product.description}
                           </p>
                         )}
                         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                          <span className="text-2xl font-light text-black">
+                          <span className="text-base sm:text-2xl font-light text-black">
                             {formatCurrency(product.price)}
                           </span>
                           <button
                             onClick={() => handleAddToCart(product)}
                             disabled={product.stock === 0}
-                            className="group/btn bg-black text-white pl-4 pr-3 py-2.5 rounded-lg text-sm font-light hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-2"
+                            className="group/btn bg-black text-white px-3 sm:pl-4 sm:pr-3 py-2 rounded-lg text-xs sm:text-sm font-light hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-1 sm:gap-2"
                           >
                             <span>
                               {product.stock === 0 ? "Esgotado" : "Adicionar"}
