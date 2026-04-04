@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Poppins } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { CartProvider } from "@/contexts/CartContext";
 import NavbarWrapper from "@/components/NavbarWrapper";
 import MainWrapper from "@/components/MainWrapper";
-import CartSidebar from "@/components/CartSidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,6 +14,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const poppins = Poppins({
+  variable: "--font-poppins",
+  subsets: ["latin"],
+  weight: ["300"],
 });
 
 export const metadata: Metadata = {
@@ -47,13 +52,12 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="light" style={{ colorScheme: "light" }}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black`}
+        className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} antialiased bg-white text-black [font-family:var(--font-poppins)] font-light`}
         style={{ background: "#ffffff", color: "#000000" }}
       >
         <ClerkProvider>
           <CartProvider>
             <NavbarWrapper />
-            <CartSidebar />
             <MainWrapper>{children}</MainWrapper>
           </CartProvider>
         </ClerkProvider>
