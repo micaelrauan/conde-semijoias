@@ -71,18 +71,28 @@ function mapProduct(product: NuvemshopProduct): Product {
       }
     : undefined;
 
+  // Converte preços para números, removendo strings vazias
+  const price = Number(firstVariant?.price || 0);
+  const compareAtPriceRaw = firstVariant?.compare_at_price;
+  const compareAtPriceNum =
+    compareAtPriceRaw && compareAtPriceRaw.trim()
+      ? Number(compareAtPriceRaw)
+      : null;
+
   return {
     id: String(product.id),
     name: product.name.pt,
     description: stripHtml(product.description.pt),
-    price: Number(firstVariant?.price || 0),
-    compare_at_price: firstVariant?.compare_at_price
-      ? Number(firstVariant.compare_at_price)
-      : undefined,
+    price,
+    compare_at_price: compareAtPriceNum ?? undefined,
     stock: firstVariant?.stock ?? 0,
     variant_id: firstVariant?.id,
     category_id: firstCategory ? String(firstCategory.id) : undefined,
     image_url: getMainImage(product),
+    images: product.images.map((img) => ({
+      src: img.src,
+      alt: img.alt || product.name.pt,
+    })),
     slug: product.handle.pt,
     is_active: true,
     created_at: new Date().toISOString(),

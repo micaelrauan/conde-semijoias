@@ -21,6 +21,11 @@ export interface Category {
   updated_at: string;
 }
 
+export interface ProductImage {
+  src: string;
+  alt?: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -30,6 +35,7 @@ export interface Product {
   variant_id?: number;
   category_id?: string;
   image_url?: string;
+  images?: ProductImage[];
   slug: string;
   is_active: boolean;
   compare_at_price?: number;
