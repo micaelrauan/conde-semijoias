@@ -38,7 +38,7 @@ export async function GET(request: Request): Promise<Response> {
       {
         status: 200,
         headers: {
-          "Cache-Control": "s-maxage=60",
+          "Cache-Control": "s-maxage=60, stale-while-revalidate=30",
         },
       },
     );

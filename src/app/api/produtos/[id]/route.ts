@@ -20,7 +20,12 @@ export async function GET(
     }
 
     const product = await getProduto(numericId);
-    return NextResponse.json(product, { status: 200 });
+    return NextResponse.json(product, {
+      status: 200,
+      headers: {
+        "Cache-Control": "s-maxage=120, stale-while-revalidate=60",
+      },
+    });
   } catch (error) {
     if (error instanceof NuvemshopApiError && error.status === 404) {
       return NextResponse.json(

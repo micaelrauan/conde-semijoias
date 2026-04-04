@@ -68,10 +68,18 @@ async function requestNuvemshop<T>(
     });
   }
 
+  const revalidate = path.startsWith("/categories")
+    ? 300
+    : path.startsWith("/products/")
+      ? 120
+      : path.startsWith("/products")
+        ? 60
+        : 60;
+
   const response = await fetch(url.toString(), {
     method: "GET",
     headers: getHeaders(),
-    cache: "no-store",
+    next: { revalidate },
   });
 
   if (!response.ok) {
