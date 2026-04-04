@@ -34,15 +34,11 @@ export interface CartItem {
 interface CartContextType {
   items: CartItem[];
   isLoading: boolean;
-  isOpen: boolean;
   totalItems: number;
   totalPrice: number;
   totalFormatted: string;
   itemCount: number;
   total: number;
-  openCart: () => void;
-  closeCart: () => void;
-  toggleCart: () => void;
   addItem: (product: CartProductSource, variantId: number) => void;
   removeItem: (variantId: number) => void;
   updateQuantity: (variantId: number, quantity: number) => void;
@@ -105,7 +101,6 @@ function formatCurrency(valueInCents: number): string {
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -140,10 +135,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     () => formatCurrency(totalPrice),
     [totalPrice],
   );
-
-  const openCart = () => setIsOpen(true);
-  const closeCart = () => setIsOpen(false);
-  const toggleCart = () => setIsOpen((current) => !current);
 
   const addItem = (product: CartProductSource, variantId: number) => {
     const nextItem = mapCartItem(product, variantId);
@@ -207,15 +198,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     () => ({
       items,
       isLoading,
-      isOpen,
       totalItems,
       totalPrice,
       totalFormatted,
       itemCount: totalItems,
       total: totalPrice,
-      openCart,
-      closeCart,
-      toggleCart,
       addItem,
       removeItem,
       updateQuantity,
@@ -223,7 +210,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       clearAllItems: clearCart,
       refreshCart,
     }),
-    [items, isLoading, isOpen, totalItems, totalPrice, totalFormatted],
+    [items, isLoading, totalItems, totalPrice, totalFormatted],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
