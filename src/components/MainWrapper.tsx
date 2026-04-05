@@ -7,6 +7,10 @@ const Footer = dynamic(() => import("./Footer"), {
   loading: () => null,
 });
 
+const CookieConsent = dynamic(() => import("./CookieConsent"), {
+  loading: () => null,
+});
+
 export default function MainWrapper({
   children,
 }: {
@@ -26,7 +30,12 @@ export default function MainWrapper({
   );
 
   if (isAuthPage) {
-    return <>{children}</>;
+    return (
+      <>
+        {children}
+        <CookieConsent />
+      </>
+    );
   }
 
   // Páginas normais têm top bar (40px) + navbar (80px) = 120px
@@ -34,6 +43,7 @@ export default function MainWrapper({
     <>
       <main className="pt-30">{children}</main>
       <Footer />
+      <CookieConsent />
     </>
   );
 }
