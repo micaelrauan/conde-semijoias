@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  SignInButton,
-  SignUpButton,
-  UserButton,
-  useAuth,
-} from "@clerk/nextjs";
+import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
 
 interface UserMenuProps {
   compact?: boolean;
@@ -41,7 +36,25 @@ export default function UserMenu({ compact = false }: UserMenuProps) {
       )}
 
       {isSignedIn && (
-        <UserButton />
+        <UserButton>
+          <UserButton.MenuItems>
+            <UserButton.Link
+              label="Minha Conta"
+              labelIcon={<span>MC</span>}
+              href="/minha-conta"
+            />
+            <UserButton.Link
+              label="Meus Pedidos"
+              labelIcon={<span>MP</span>}
+              href="/meus-pedidos"
+            />
+            <UserButton.Link
+              label="Favoritos"
+              labelIcon={<span>FV</span>}
+              href="/favoritos"
+            />
+          </UserButton.MenuItems>
+        </UserButton>
       )}
     </div>
   );

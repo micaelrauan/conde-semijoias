@@ -207,6 +207,25 @@ export default function CarrinhoPage() {
               </button>
             )}
 
+            {/* Total e Checkout - Desktop */}
+            <div className="hidden md:block bg-white border border-gray-200 rounded-lg p-6 space-y-4 mb-8">
+              <div className="flex justify-between items-center text-lg">
+                <span className="font-light text-gray-700">Total</span>
+                <span className="font-light text-black text-2xl">
+                  {totalFormatted}
+                </span>
+              </div>
+
+              <CheckoutButton
+                items={items}
+                className="w-full bg-black text-white py-3 rounded-lg font-light hover:bg-gray-800 transition-colors disabled:bg-gray-300"
+              />
+
+              <p className="text-xs text-gray-500 font-light text-center">
+                Frete e impostos calculados no checkout
+              </p>
+            </div>
+
             {/* Total e Checkout - Fixo no bottom em mobile */}
             <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 space-y-3 md:hidden">
               <div className="flex justify-between items-center text-lg">

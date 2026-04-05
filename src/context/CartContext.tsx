@@ -34,6 +34,8 @@ export interface CartItem {
 interface CartContextType {
   items: CartItem[];
   isLoading: boolean;
+  isCheckingOut: boolean;
+  checkoutError: string | null;
   totalItems: number;
   totalPrice: number;
   totalFormatted: string;
@@ -101,6 +103,8 @@ function formatCurrency(valueInCents: number): string {
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCheckingOut] = useState(false);
+  const [checkoutError] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -198,6 +202,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     () => ({
       items,
       isLoading,
+      isCheckingOut,
+      checkoutError,
       totalItems,
       totalPrice,
       totalFormatted,
@@ -210,7 +216,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       clearAllItems: clearCart,
       refreshCart,
     }),
-    [items, isLoading, totalItems, totalPrice, totalFormatted],
+    [
+      items,
+      isLoading,
+      isCheckingOut,
+      checkoutError,
+      totalItems,
+      totalPrice,
+      totalFormatted,
+    ],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
