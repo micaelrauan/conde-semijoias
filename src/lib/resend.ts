@@ -1,10 +1,8 @@
 import { Resend } from "resend";
 
-if (!process.env.RESEND_API_KEY) {
-  throw new Error("RESEND_API_KEY is not set");
-}
-
-export const resend = new Resend(process.env.RESEND_API_KEY);
+const resendClient = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
 
 export async function sendOrderConfirmationEmail(params: {
   to: string;
@@ -19,10 +17,18 @@ export async function sendOrderConfirmationEmail(params: {
     zipcode: string;
   };
 }) {
+  if (!resendClient || !process.env.RESEND_FROM_EMAIL) {
+    console.log(
+      "Resend disabled: skipping order confirmation email for order",
+      params.orderId,
+    );
+    return;
+  }
+
   const { PedidoConfirmado } = await import("@/emails/PedidoConfirmado");
   const orderUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/meus-pedidos`;
 
-  const { error } = await resend.emails.send({
+  const { error } = await resendClient.emails.send({
     from: `Conde Semijoias <${process.env.RESEND_FROM_EMAIL}>`,
     to: params.to,
     subject: `Pedido #${params.orderId} confirmado!`,
