@@ -1,90 +1,123 @@
-# Deploy no Vercel - Guia Prático
+# Deploy no Vercel - CONDE SEMIJOIAS
 
-Este projeto está pronto para ser deployado no Vercel. Siga os passos abaixo:
+Guia de deploy para o stack atual com Next.js + Clerk + Nuvemshop + Resend.
 
-## Pré-requisitos
+Guia detalhado de conexao com Nuvemshop:
 
-- Conta no [Vercel](https://vercel.com)
-- GitHub conectado ao Vercel (ou repositório remoto configurado)
-- Variáveis de ambiente configuradas
+- NUVEMSHOP_CONNECT.md
 
-## Como Fazer Deploy
+## Pre-requisitos
 
-### 1. Via CLI do Vercel (Recomendado para desenvolvimento)
+- Conta no Vercel
+- Repositorio conectado (GitHub/GitLab/Bitbucket)
+- App Clerk configurado
+- App Nuvemshop com token valido
+- Conta Resend ativa
+
+## Deploy
+
+### Opcao 1: via painel do Vercel
+
+1. Criar novo projeto no Vercel
+2. Selecionar o repositorio
+3. Definir as variaveis de ambiente
+4. Executar deploy
+
+### Opcao 2: via CLI
 
 ```bash
-# Instalar a CLI do Vercel globalmente (se ainda não tem)
 npm install -g vercel
-
-# Fazer deploy
 vercel
 ```
 
-### 2. Via GitHub (Recomendado para produção)
+## Variaveis de ambiente obrigatorias
 
-1. Acesse [vercel.com](https://vercel.com)
-2. Clique em "New Project"
-3. Conecte seu repositório GitHub
-4. Selecione este projeto (`conde-semijoias`)
-5. Configure as variáveis de ambiente (ver seção abaixo)
-6. Clique em "Deploy"
+Cadastre no projeto do Vercel (Production e Preview):
 
-## Variáveis de Ambiente no Vercel
+```env
+NUVEMSHOP_TOKEN=
+NUVEMSHOP_STORE_ID=
 
-No painel do Vercel, configure as seguintes variáveis:
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
+NEXT_PUBLIC_CLERK_AFTER_SIGN_OUT_URL=/
 
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=pedidos@condesemijoias.com.br
+NEXT_PUBLIC_SITE_URL=https://seu-dominio.com
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://ciheewdlnjxfgwqxzkhv.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=[sua-chave-anonima]
+
+NEXT_PUBLIC_SITE_URL deve usar o dominio final de producao.
+
+## Build
+
+- Framework: Next.js 16
+- Comando: npm run build
+- Output: .next
+
+Valide localmente antes do deploy:
+
+```bash
+npm run build
 ```
 
-## Informações de Build
+## Passos manuais apos deploy
 
-- **Framework:** Next.js 16.2.1 (Turbopack)
-- **Script de Build:** `npm run build`
-- **Output:** `.next/`
-- **Node:** Recomendado v18+
+### Nuvemshop
 
-## Checklist Pré-Deploy
+1. Confirmar escopos do app:
+   - write_draft_orders
+   - read_draft_orders
+2. Reinstalar app na loja caso tenha alterado escopos
+3. Configurar webhook:
+   - Evento: order/paid
+   - URL: https://seu-dominio.com/api/webhooks/nuvemshop
+4. Configurar redirect de sucesso do checkout:
+   - https://seu-dominio.com/pedido/sucesso?order_id={order_id}
 
-✅ Build local funciona (`npm run build`)
-✅ Variáveis de ambiente configuradas (`.env`)
-✅ TypeScript sem erros
-✅ Branding CONDE SEMIJOIAS aplicado
-✅ Logo do hero carousel funcionando
-✅ Metadata configurada
+### Resend
 
-## URLs Após Deploy
+1. Verificar dominio/remetente autorizado para RESEND_FROM_EMAIL
+2. Confirmar entregabilidade de email em ambiente de producao
 
-- **Preview:** `https://[seu-projeto].vercel.app`
-- **Production:** `https://seu-dominio.com` (após configurar custom domain)
+## Checklist de producao
+
+- Build concluido sem erros
+- Login Clerk funcionando
+- Checkout redireciona para Nuvemshop
+- Evento order/paid chega no webhook
+- Pedido salvo em data/orders.json
+- Email de confirmacao enviado
+- /meus-pedidos exibindo historico do usuario logado
 
 ## Troubleshooting
 
-### Build falha
+### Erro 403 ao criar draft order
 
-- Verificar que `backend/` está excluído do TypeScript (`tsconfig.json`)
-- Limpar cache local: `rm -rf .next node_modules` e `npm install`
+Causa comum: escopo write_draft_orders ausente ou token antigo.
 
-### Página em branco
+Acao:
 
-- Verificar variáveis de ambiente no Vercel
-- Verificar console do navegador (F12) para erros
+1. Ajustar escopos no app Nuvemshop
+2. Reinstalar app
+3. Atualizar NUVEMSHOP_TOKEN
 
-### Erro de conexão no Supabase
+### Email nao enviado
 
-- Verificar `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- Verificar políticas RLS e permissões das tabelas no Supabase
+Acao:
 
-## Próximos Passos
+1. Validar RESEND_API_KEY
+2. Validar RESEND_FROM_EMAIL
+3. Conferir logs da API de webhook
 
-1. Deploy no Vercel
-2. Testar todas as rotas: `/`, `/produtos`, `/sign-in`
-3. Testar funcionalidade de carrinho
-4. Verificar responsive design
-5. Testar em diferentes browsers
+### /meus-pedidos vazio
 
-## Suporte
+Acao:
 
-Para mais informações sobre deploy no Vercel, visite:
-https://vercel.com/docs/framework-guides/nextjs
+1. Confirmar pagamento aprovado no checkout
+2. Confirmar recebimento de order/paid
+3. Verificar email do pedido comparado ao email do usuario Clerk

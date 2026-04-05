@@ -1,229 +1,133 @@
-# 🛍️ E-commerce Template - Full Stack
+# CONDE SEMIJOIAS - Frontend + Checkout Nuvemshop
 
-Sistema completo de e-commerce com Next.js + Supabase.
-Backend NestJS opcional disponível.
+Aplicacao de e-commerce em Next.js com autenticacao via Clerk, catalogo Nuvemshop e fluxo de compra hospedado na Nuvemshop.
 
-## 📁 Estrutura do Projeto
+## Visao Geral
 
+O checkout funciona em 4 etapas:
+
+1. Carrinho local cria um Draft Order na Nuvemshop
+2. Cliente e redirecionado para o checkout hospedado da Nuvemshop (frete e pagamento)
+3. Webhook order/paid salva pedido em arquivo local e envia email de confirmacao
+4. Cliente acessa paginas de sucesso e historico em Meus Pedidos
+
+## Stack Atual
+
+- Next.js 16 (App Router)
+- React 19 + TypeScript
+- Tailwind CSS v4
+- Clerk (auth)
+- Nuvemshop API (catalogo + draft orders + webhook)
+- Resend + React Email (confirmacao de pedido)
+- Persistencia de pedidos em arquivo JSON (sem banco)
+
+## Estrutura Relevante
+
+- src/app/api/checkout/route.ts: cria draft order e devolve URL de checkout
+- src/app/api/webhooks/nuvemshop/route.ts: recebe order/paid
+- src/app/api/pedidos/route.ts: lista pedidos do usuario logado
+- src/lib/nuvemshop.ts: cliente de catalogo Nuvemshop
+- src/lib/nuvemshop-checkout.ts: integracao draft_orders
+- src/lib/orders-store.ts: leitura/escrita em data/orders.json
+- src/lib/resend.ts: envio de email transacional
+- src/emails/PedidoConfirmado.tsx: template de email
+
+## Variaveis de Ambiente
+
+Configure no arquivo .env.local:
+
+```env
+NUVEMSHOP_TOKEN=seu_token
+NUVEMSHOP_STORE_ID=sua_loja
+
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=sua_chave_publica
+CLERK_SECRET_KEY=sua_chave_privada
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
+NEXT_PUBLIC_CLERK_AFTER_SIGN_OUT_URL=/
+
+RESEND_API_KEY=re_sua_chave
+RESEND_FROM_EMAIL=pedidos@condesemijoias.com.br
+NEXT_PUBLIC_SITE_URL=https://conde-semijoias.vercel.app
 ```
-ecommerce-template/
-├── src/                    # Frontend Next.js
-│   ├── app/               # App Router do Next.js
-│   ├── components/        # Componentes React
-│   ├── contexts/          # Context API (Auth, etc)
-│   └── lib/               # Supabase client e helpers
-│
-├── backend/               # Backend NestJS (OPCIONAL)
-│   └── src/              # API alternativa ao Supabase
-│
-├── supabase-schema.sql    # Schema completo do banco
-├── public/                # Arquivos estáticos
-└── README.md
-```
 
-## 🚀 Tecnologias
-
-### Stack Principal (Recomendado)
-
-- **Next.js 16** - Framework React com App Router
-- **React 19** - Biblioteca UI
-- **TypeScript** - Tipagem estática
-- **Tailwind CSS v4** - Estilização moderna
-- **Supabase** - Backend completo (Auth + Database + Storage + RLS)
-  - PostgreSQL como banco de dados
-  - Row Level Security (RLS) para segurança
-  - Realtime subscriptions
-  - Auth integrado (email, OAuth, etc)
-- **Context API** - Gerenciamento de estado
-
-### Backend Alternativo (Opcional)
-
-Caso prefira um backend customizado ao invés do Supabase:
-
-- **NestJS** - Framework Node.js
-- **TypeORM** - ORM
-- **PostgreSQL** - Banco de dados
-- **JWT** - Autenticação
-- **Clerk** - Autenticação gerenciada
-
-## ⚙️ Configuração e Instalação
-
-### Método 1: Com Supabase (Recomendado) ⭐
-
-A forma mais rápida e moderna de começar:
+## Setup Local
 
 ```bash
-# 1. Instalar dependências
 npm install
-
-# 2. Configurar variáveis de ambiente
-cp .env.example .env
-```
-
-**3. Configurar Supabase:**
-
-1. Crie uma conta gratuita em [supabase.com](https://supabase.com)
-2. Crie um novo projeto
-3. Copie URL e chave anônima para o `.env`
-4. Execute o SQL do arquivo `supabase-schema.sql` no SQL Editor do Supabase
-
-📖 Veja o guia completo em [SUPABASE_SETUP.md](SUPABASE_SETUP.md)
-
-```bash
-# 4. Rodar o projeto
 npm run dev
 ```
 
-✅ Pronto! Seu e-commerce está rodando em `http://localhost:3000`
+Aplicacao em http://localhost:3000.
 
-**O que você tem agora:**
+## Fluxo de Compra
 
-- ✅ Autenticação completa (login, cadastro, recuperação de senha)
-- ✅ Banco de dados PostgreSQL com RLS
-- ✅ Tabelas: usuários, produtos, categorias, carrinho, pedidos
-- ✅ APIs automáticas para CRUD
-- ✅ Segurança com Row Level Security
+1. Usuario adiciona itens ao carrinho
+2. Botao Finalizar Compra chama POST /api/checkout
+3. API cria draft order na Nuvemshop e retorna checkoutUrl
+4. Frontend redireciona para checkoutUrl
+5. Pagamento aprovado dispara webhook order/paid
+6. Webhook:
 
-### Método 2: Com Backend NestJS (Alternativo)
+- salva pedido em data/orders.json
+- envia email de confirmacao com Resend
 
-Caso prefira ter controle total do backend:
+7. Usuario acessa:
 
-**1. Configurar PostgreSQL local:**
+- /pedido/sucesso
+- /meus-pedidos
+
+## Passos Manuais Obrigatorios na Nuvemshop
+
+1. Habilitar escopos do app:
+
+- write_draft_orders
+- read_draft_orders
+
+2. Reinstalar app na loja e atualizar token
+3. Configurar webhook:
+
+- Evento: order/paid
+- URL: https://seu-dominio.com/api/webhooks/nuvemshop
+
+4. Configurar redirect de sucesso no checkout:
+
+- https://seu-dominio.com/pedido/sucesso?order_id={order_id}
+
+Sem os escopos de draft orders, a criacao de draft order retorna 403.
+
+## Armazenamento de Pedidos
+
+- Arquivo: data/orders.json
+- Nao utiliza banco de dados
+- Arquivo ignorado no git
+- data/.gitkeep mantem o diretorio versionado
+
+## Comandos Principais
 
 ```bash
-# Instalar PostgreSQL e criar banco
-createdb ecommerce
-```
-
-**2. Configurar variáveis no `.env`:**
-
-```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=postgres
-DB_PASSWORD=sua_senha
-DB_DATABASE=ecommerce
-JWT_SECRET=sua-chave-secreta
-```
-
-**3. Rodar backend:**
-
-```bash
-cd backend
-npm install
-npm run start:dev
-```
-
-**4. Rodar frontend:**
-
-```bash
-# Em outro terminal
 npm run dev
+npm run build
+npm run start
 ```
 
-⚠️ **Nota:** Com esta opção, você precisará gerenciar duas aplicações (frontend + backend)
+## Checklist de Verificacao
 
-## 🎨 Funcionalidades
+- Build sem erros
+- Checkout redireciona para Nuvemshop
+- Webhook order/paid recebido com sucesso
+- data/orders.json atualizado apos pagamento
+- Email de confirmacao enviado
+- /meus-pedidos lista pedidos do usuario logado
 
-### Interface (Frontend)
+## Deploy
 
-- ✅ **Navbar responsiva** com auto-hide ao scroll
-- ✅ **Design minimalista** preto e branco com tipografia elegante
-- ✅ **Carrossel de promoções** no topo
-- ✅ **Sistema de autenticação** com Clerk
-- ✅ **Página de conta** do usuário
-- ✅ **Proteção de rotas** automática
-- ✅ **Persistência de sessão**
+Consulte VERCEL_DEPLOY.md para checklist e configuracoes de producao.
 
-### Backend (Supabase)
+## Documentacao Nuvemshop
 
-- ✅ **Autenticação completa**
-  - Clerk como provedor principal
-  - Fluxo de login e cadastro via modal/página
-  - Recuperação e verificação gerenciadas pelo Clerk
-- ✅ **Banco de dados PostgreSQL**
-  - Perfis de usuário
-  - Produtos e categorias
-  - Carrinho de compras
-  - Pedidos e histórico
-- ✅ **Segurança com RLS** (Row Level Security)
-- ✅ **APIs automáticas** para todas as tabelas
-- ✅ **Realtime** (opcional para updates em tempo real)
-- ✅ **Storage** para imagens de produtos
+Para setup completo da conexao com app, OAuth, escopos, token, checkout e webhook:
 
-### Backend Alternativo (NestJS - Opcional)
-
-Caso opte pelo backend customizado:
-
-- ✅ Autenticação JWT
-- ✅ CRUD completo (Usuários, Produtos, Categorias, Carrinho, Pedidos)
-- ✅ Validação de dados com class-validator
-- ✅ Guards e decorators customizados
-
-## Variáveis de Ambiente
-
-### Com Supabase (Recomendado)
-
-```env
-# Obrigatório - Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-chave-anonima
-```
-
-### Com Backend NestJS (Opcional)
-
-Se optar pelo backend customizado, adicione também:
-
-```env
-# Backend - Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=postgres
-DB_PASSWORD=sua_senha
-DB_DATABASE=ecommerce
-
-# Backend - JWT
-JWT_SECRET=sua-chave-secreta
-JWT_EXPIRATION=7d
-
-# Backend - API
-PORT=3001
-NODE_ENV=development
-FRONTEND_URL=http://localhost:3000
-```
-
-## 📚 Documentação
-
-- **[SUPABASE_SETUP.md](SUPABASE_SETUP.md)** - Guia completo de configuração do Supabase
-- **[supabase-schema.sql](supabase-schema.sql)** - Schema completo do banco de dados
-- **[backend/SETUP.md](backend/SETUP.md)** - Guia do backend NestJS (opcional)
-
-## 🎯 Por que Supabase?
-
-- ✅ **Setup em minutos** vs horas configurando backend
-- ✅ **Gratuito** até 500MB de banco e 50k usuários/mês
-- ✅ **Segurança nativa** com RLS e autenticação integrada
-- ✅ **Escalável** - da prototipação à produção
-- ✅ **APIs automáticas** - CRUD sem escrever código
-- ✅ **Realtime** - updates em tempo real
-- ✅ **Storage** - upload de imagens integrado
-- ✅ **Dashboard** - gerenciar dados visualmente
-
-## 🚀 Próximos Passos
-
-Depois de configurar o projeto:
-
-1. ✅ Personalize o design em `src/app/globals.css`
-2. ✅ Adicione mais produtos no Supabase
-3. ✅ Configure OAuth (Google, GitHub) no dashboard do Supabase
-4. ✅ Adicione páginas de produto e checkout
-5. ✅ Configure domain customizado
-6. ✅ Implante na Vercel (integração automática com Supabase)
-
-## 📄 Licença
-
-MIT
-
-## 🤝 Contribuindo
-
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull requests.
+- NUVEMSHOP_CONNECT.md
