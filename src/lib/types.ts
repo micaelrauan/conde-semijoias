@@ -39,6 +39,10 @@ export interface Product {
   slug: string;
   is_active: boolean;
   compare_at_price?: number;
+  weight?: number;
+  width?: number;
+  height?: number;
+  depth?: number;
   created_at: string;
   updated_at: string;
   category?: Category;

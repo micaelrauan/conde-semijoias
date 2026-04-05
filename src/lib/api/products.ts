@@ -18,6 +18,10 @@ interface ProductsApiResponse {
 
 let productsCache: Product[] | null = null;
 let categoriesCache: Category[] | null = null;
+let productsCacheAt = 0;
+let categoriesCacheAt = 0;
+
+const CACHE_TTL_MS = 60_000;
 
 function getApiUrl(path: string, params?: Record<string, string>): string {
   const url = new URL(path, window.location.origin);
@@ -42,6 +46,41 @@ function stripHtml(html: string): string {
     .replace(/&gt;/g, ">")
     .replace(/\s+/g, " ") // Remove espaços múltiplos
     .trim();
+}
+
+function normalizeBrokenEncoding(value: string): string {
+  // Corrige textos UTF-8 interpretados como latin1 (ex: "AÃ§o" -> "Aço").
+  if (!value || !/[ÃÂâ]/.test(value)) {
+    return value;
+  }
+
+  try {
+    const bytes = Uint8Array.from(
+      value.split("").map((char) => char.charCodeAt(0) & 0xff),
+    );
+    return new TextDecoder("utf-8", { fatal: false }).decode(bytes);
+  } catch {
+    return value;
+  }
+}
+
+function normalizeDescription(rawDescription: string): string {
+  return normalizeBrokenEncoding(stripHtml(rawDescription));
+}
+
+function toOptionalNumber(
+  value: string | number | null | undefined,
+): number | undefined {
+  if (value === null || value === undefined || value === "") {
+    return undefined;
+  }
+
+  const parsed =
+    typeof value === "number"
+      ? value
+      : Number(String(value).replace(",", "."));
+
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }
 
 function mapCategory(category: NuvemshopCategory): Category {
@@ -72,19 +111,60 @@ function mapProduct(product: NuvemshopProduct): Product {
     : undefined;
 
   // Converte preços para números, removendo strings vazias
-  const price = Number(firstVariant?.price || 0);
+  const rawPrice = Number(firstVariant?.price || 0);
   const compareAtPriceRaw = firstVariant?.compare_at_price;
   const compareAtPriceNum =
     compareAtPriceRaw && compareAtPriceRaw.trim()
       ? Number(compareAtPriceRaw)
       : null;
+  const promotionalPriceRaw = firstVariant?.promotional_price;
+  const promotionalPriceNum =
+    typeof promotionalPriceRaw === "string" && promotionalPriceRaw.trim()
+      ? Number(promotionalPriceRaw)
+      : null;
+
+  const basePrice = Number.isFinite(rawPrice) ? rawPrice : 0;
+  const promotionalPrice =
+    promotionalPriceNum && Number.isFinite(promotionalPriceNum)
+      ? promotionalPriceNum
+      : undefined;
+
+  const hasPromotionalPrice =
+    typeof promotionalPrice === "number" &&
+    promotionalPrice > 0 &&
+    promotionalPrice < basePrice;
+
+  const price = hasPromotionalPrice ? promotionalPrice : basePrice;
+
+  let compareAtPrice =
+    compareAtPriceNum && Number.isFinite(compareAtPriceNum)
+      ? compareAtPriceNum
+      : undefined;
+
+  if (hasPromotionalPrice) {
+    compareAtPrice =
+      typeof compareAtPrice === "number" && compareAtPrice > price
+        ? compareAtPrice
+        : basePrice;
+  } else if (typeof compareAtPrice === "number" && compareAtPrice <= price) {
+    compareAtPrice = undefined;
+  }
+
+  const weight = toOptionalNumber(firstVariant?.weight);
+  const width = toOptionalNumber(firstVariant?.width);
+  const height = toOptionalNumber(firstVariant?.height);
+  const depth = toOptionalNumber(firstVariant?.depth);
 
   return {
     id: String(product.id),
     name: product.name.pt,
-    description: stripHtml(product.description.pt),
+    description: normalizeDescription(product.description.pt),
     price,
-    compare_at_price: compareAtPriceNum ?? undefined,
+    compare_at_price: compareAtPrice,
+    weight,
+    width,
+    height,
+    depth,
     stock: firstVariant?.stock ?? 0,
     variant_id: firstVariant?.id,
     category_id: firstCategory ? String(firstCategory.id) : undefined,
@@ -113,7 +193,9 @@ async function fetchProductsFromApi(
     query.category_id = String(params.category_id);
   }
 
-  const response = await fetch(getApiUrl("/api/produtos", query));
+  const response = await fetch(getApiUrl("/api/produtos", query), {
+    cache: "no-store",
+  });
   if (!response.ok) {
     throw new Error("Erro ao carregar produtos");
   }
@@ -123,7 +205,9 @@ async function fetchProductsFromApi(
 }
 
 async function fetchCategoriesFromApi(): Promise<Category[]> {
-  const response = await fetch(getApiUrl("/api/categorias"));
+  const response = await fetch(getApiUrl("/api/categorias"), {
+    cache: "no-store",
+  });
   if (!response.ok) {
     throw new Error("Erro ao carregar categorias");
   }
@@ -150,7 +234,7 @@ export function replaceCategoriesCache(nextCategories: Category[]): void {
  * Fetches all products or products filtered by query params.
  */
 export async function getProducts(params?: GetProductsParams) {
-  if (!params && productsCache) {
+  if (!params && productsCache && Date.now() - productsCacheAt < CACHE_TTL_MS) {
     return productsCache;
   }
 
@@ -158,6 +242,7 @@ export async function getProducts(params?: GetProductsParams) {
 
   if (!params) {
     productsCache = products;
+    productsCacheAt = Date.now();
   }
 
   return products;
@@ -231,12 +316,16 @@ export async function searchProducts(query: string) {
  * Fetches all categories.
  */
 export async function getCategories() {
-  if (categoriesCache) {
+  if (
+    categoriesCache &&
+    Date.now() - categoriesCacheAt < CACHE_TTL_MS
+  ) {
     return categoriesCache;
   }
 
   const categories = await fetchCategoriesFromApi();
   categoriesCache = categories;
+  categoriesCacheAt = Date.now();
   return categories;
 }
 

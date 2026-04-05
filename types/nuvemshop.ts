@@ -8,8 +8,13 @@ export interface NuvemshopVariant {
   id: number;
   price: string;
   compare_at_price: string | null;
+  promotional_price?: string | null;
   stock: number | null;
   sku: string | null;
+  weight?: string | number | null;
+  width?: string | number | null;
+  height?: string | number | null;
+  depth?: string | number | null;
 }
 
 export interface NuvemshopProduct {
