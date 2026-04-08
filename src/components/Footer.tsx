@@ -48,7 +48,15 @@ export default function Footer() {
                   href="/sobre"
                   className="hover:text-white transition-colors font-light text-sm"
                 >
-                  Sobre Nós
+                  Nossa Historia
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contato"
+                  className="hover:text-white transition-colors font-light text-sm"
+                >
+                  Contato
                 </Link>
               </li>
               <li>
@@ -175,39 +183,18 @@ export default function Footer() {
 
         {/* Social Links */}
         <div className="border-t border-gray-700 pt-8 mb-8">
-          <div className="flex justify-center items-center gap-8 mb-8">
+          <div className="flex justify-center items-center gap-3 mb-8">
             <a
-              href="https://instagram.com"
+              href="https://instagram.com/condesemijoias"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-gray-400 hover:text-white transition-colors flex items-center gap-2"
               aria-label="Instagram"
             >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1112.324 0 6.162 6.162 0 01-12.324 0zM12 16a4 4 0 110-8 4 4 0 010 8zm4.965-10.322a1.44 1.44 0 110-2.881 1.44 1.44 0 010 2.881z" />
               </svg>
-            </a>
-            <a
-              href="https://facebook.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-white transition-colors"
-              aria-label="Facebook"
-            >
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333H16V2.169c-.585-.089-1.308-.166-2.315-.166-2.59 0-4.685 1.58-4.685 4.477V8z" />
-              </svg>
-            </a>
-            <a
-              href="https://youtube.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-white transition-colors"
-              aria-label="YouTube"
-            >
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-              </svg>
+              <span className="text-sm font-light">@condesemijoias</span>
             </a>
           </div>
         </div>
@@ -217,22 +204,34 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-4 mb-6">
             <div className="space-x-6 text-sm font-light text-gray-400">
               <Link
-                href="/privacidade"
+                href="/politica-de-privacidade"
                 className="hover:text-white transition-colors"
               >
-                Privacidade
+                Politica de Privacidade
               </Link>
               <Link
-                href="/termos"
+                href="/termos-de-uso"
                 className="hover:text-white transition-colors"
               >
                 Termos de Uso
               </Link>
               <Link
-                href="/cookie-policy"
+                href="/trocas-e-devolucoes"
                 className="hover:text-white transition-colors"
               >
-                Cookies
+                Trocas e Devolucoes
+              </Link>
+              <Link
+                href="/sobre"
+                className="hover:text-white transition-colors"
+              >
+                Nossa Historia
+              </Link>
+              <Link
+                href="/contato"
+                className="hover:text-white transition-colors"
+              >
+                Contato
               </Link>
             </div>
             <div className="text-sm font-light text-gray-400">
