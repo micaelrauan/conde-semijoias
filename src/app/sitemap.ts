@@ -19,7 +19,7 @@ async function getProducts(): Promise<
           Authentication: `bearer ${process.env.NUVEMSHOP_TOKEN}`,
           "User-Agent": "CondeJoias (contato@condesemijoias.com.br)",
         },
-        next: { revalidate: 3600 },
+        next: { revalidate: 300 },
       },
     );
 
