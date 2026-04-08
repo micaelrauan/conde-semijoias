@@ -17,11 +17,6 @@ const SignInButton = dynamic(
   { ssr: false },
 );
 
-const SignUpButton = dynamic(
-  () => import("@clerk/nextjs").then((mod) => ({ default: mod.SignUpButton })),
-  { ssr: false },
-);
-
 const UserButton = dynamic(
   () => import("@clerk/nextjs").then((mod) => ({ default: mod.UserButton })),
   { ssr: false, loading: () => <div className="w-8 h-8 rounded-full bg-gray-100" /> },
@@ -36,6 +31,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const { isSignedIn } = useAuth();
   const { itemCount } = useCart();
+  const closeMobileMenu = () => setIsMenuOpen(false);
 
   const promos = [
     "Frete gratis para compras acima de R$ 299",
@@ -314,7 +310,7 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200">
+          <div className="md:hidden bg-white border-t border-gray-200 max-h-[calc(100vh-120px)] overflow-y-auto overscroll-contain">
             <div className="px-4 py-4 space-y-4">
               {/* Mobile Search */}
               <div className="relative">
@@ -370,6 +366,7 @@ export default function Navbar() {
                 <Link
                   href="/"
                   prefetch
+                  onClick={closeMobileMenu}
                   className="py-2 text-gray-600 hover:text-black font-light"
                 >
                   Início
@@ -377,87 +374,90 @@ export default function Navbar() {
                 <Link
                   href="/produtos"
                   prefetch
+                  onClick={closeMobileMenu}
                   className="py-2 text-gray-600 hover:text-black font-light"
                 >
                   Produtos
                 </Link>
                 <Link
                   href="/categorias"
+                  onClick={closeMobileMenu}
                   className="py-2 text-gray-600 hover:text-black font-light"
                 >
                   Categorias
                 </Link>
                 <Link
                   href="/ofertas"
+                  onClick={closeMobileMenu}
                   className="py-2 text-gray-600 hover:text-black font-light"
                 >
                   Ofertas
                 </Link>
                 <Link
                   href="/lancamentos"
+                  onClick={closeMobileMenu}
                   className="py-2 text-gray-600 hover:text-black font-light"
                 >
                   Lançamentos
                 </Link>
                 <Link
                   href="/sobre"
+                  onClick={closeMobileMenu}
                   className="py-2 text-gray-600 hover:text-black font-light"
                 >
                   Sobre Nós
                 </Link>
               </div>
 
-              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 space-y-3">
-                {!isSignedIn && (
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm font-light text-black">
-                        Entrar na conta
-                      </p>
-                      <p className="mt-1 text-sm text-gray-600">
-                        Use o Clerk para acessar seu perfil.
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <SignInButton mode="modal">
-                        <button
-                          type="button"
-                          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-4 text-sm font-light text-gray-700 transition-colors hover:border-gray-300 hover:text-black"
-                        >
-                          Entrar
-                        </button>
-                      </SignInButton>
-                      <SignUpButton mode="modal">
-                        <button
-                          type="button"
-                          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-black px-4 text-sm font-light text-white transition-colors hover:bg-gray-800"
-                        >
-                          Criar Conta
-                        </button>
-                      </SignUpButton>
-                    </div>
-                  </div>
-                )}
-
-                {isSignedIn && (
-                  <div className="flex items-center gap-3">
-                    <UserButton />
-                    <div>
-                      <p className="text-sm font-light text-black">
-                        Minha conta
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Acesse seu perfil direto pelo Clerk.
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-
               {/* Mobile Icons */}
-              <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-200">
+              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-gray-200">
+                {!isSignedIn ? (
+                  <SignInButton mode="modal">
+                    <button
+                      type="button"
+                      className="flex min-h-11 flex-col items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-50 hover:text-black"
+                    >
+                      <svg
+                        className="w-6 h-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5.121 17.804A9 9 0 1112 21a8.96 8.96 0 01-6.879-3.196zM15 10a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                      <span className="text-xs mt-1 font-light">Entrar</span>
+                    </button>
+                  </SignInButton>
+                ) : (
+                  <Link
+                    href="/minha-conta"
+                    onClick={closeMobileMenu}
+                    className="flex min-h-11 flex-col items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-50 hover:text-black"
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5.121 17.804A9 9 0 1112 21a8.96 8.96 0 01-6.879-3.196zM15 10a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                    <span className="text-xs mt-1 font-light">Conta</span>
+                  </Link>
+                )}
                 <Link
                   href="/favoritos"
+                  onClick={closeMobileMenu}
                   className="flex min-h-11 flex-col items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-50 hover:text-black"
                 >
                   <svg
@@ -477,6 +477,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/carrinho"
+                  onClick={closeMobileMenu}
                   className="flex min-h-11 flex-col items-center justify-center relative rounded-xl text-gray-600 transition-colors hover:bg-gray-50 hover:text-black"
                 >
                   <svg
