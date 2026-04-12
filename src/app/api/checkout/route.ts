@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import {
   CheckoutIntegrationError,
   CheckoutItem,
@@ -22,6 +22,24 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { items, customer } = body;
 
+    const user = await currentUser();
+    const userWhatsapp =
+      typeof user?.publicMetadata?.whatsapp === "string"
+        ? user.publicMetadata.whatsapp
+        : undefined;
+
+    if (!userWhatsapp) {
+      return Response.json(
+        {
+          error:
+            "Complete seu cadastro informando WhatsApp antes de finalizar.",
+          code: "WHATSAPP_REQUIRED",
+          redirectTo: "/completar-cadastro?next=/carrinho",
+        },
+        { status: 400 },
+      );
+    }
+
     if (!items || !Array.isArray(items) || items.length === 0) {
       return Response.json({ error: "Carrinho esta vazio" }, { status: 400 });
     }
@@ -42,10 +60,10 @@ export async function POST(request: NextRequest) {
       items.length,
     );
 
-    const draftOrder = await createDraftOrder(
-      items as CheckoutItem[],
-      customer,
-    );
+    const draftOrder = await createDraftOrder(items as CheckoutItem[], {
+      ...customer,
+      phone: userWhatsapp,
+    });
 
     console.log("Checkout URL generated:", draftOrder.checkoutUrl);
 

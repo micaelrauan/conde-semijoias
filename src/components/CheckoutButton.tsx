@@ -1,6 +1,7 @@
 "use client";
 
 import { SignInButton, useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { CartItem } from "@/context/CartContext";
 
@@ -13,12 +14,20 @@ export default function CheckoutButton({
   items,
   className,
 }: CheckoutButtonProps) {
+  const router = useRouter();
   const { isLoaded, isSignedIn, user } = useUser();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
+  const hasWhatsapp = typeof user?.publicMetadata?.whatsapp === "string";
+
   const handleCheckout = async () => {
     if (items.length === 0 || isCheckingOut) return;
+
+    if (!hasWhatsapp) {
+      router.push("/completar-cadastro?next=/carrinho");
+      return;
+    }
 
     setIsCheckingOut(true);
     setCheckoutError(null);
@@ -51,6 +60,11 @@ export default function CheckoutButton({
         .catch(() => ({ error: "Falha inesperada ao iniciar checkout." }));
 
       if (!res.ok) {
+        if (data.code === "WHATSAPP_REQUIRED") {
+          router.push(data.redirectTo || "/completar-cadastro?next=/carrinho");
+          return;
+        }
+
         throw new Error(
           data.detail || data.error || "Erro ao iniciar checkout",
         );
@@ -101,13 +115,23 @@ export default function CheckoutButton({
 
   return (
     <div className="space-y-2">
+      {!hasWhatsapp && (
+        <p className="text-xs text-amber-700 text-center">
+          Informe seu WhatsApp para concluir a compra.
+        </p>
+      )}
+
       <button
         type="button"
         onClick={handleCheckout}
         disabled={isCheckingOut || items.length === 0}
         className={className}
       >
-        {isCheckingOut ? "Redirecionando..." : "Prosseguir para checkout"}
+        {isCheckingOut
+          ? "Redirecionando..."
+          : hasWhatsapp
+            ? "Prosseguir para checkout"
+            : "Completar cadastro"}
       </button>
 
       {checkoutError && (

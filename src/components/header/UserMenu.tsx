@@ -79,7 +79,7 @@ export default function UserMenu({
     <div className="flex items-center gap-3">
       {!isSignedIn && (
         <div className="flex items-center gap-3">
-          <SignInButton mode="modal">
+          <SignInButton mode="modal" forceRedirectUrl="/completar-cadastro">
             <button
               type="button"
               className={`inline-flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:border-gray-300 hover:text-black transition-colors ${buttonClasses}`}
@@ -87,7 +87,7 @@ export default function UserMenu({
               Entrar
             </button>
           </SignInButton>
-          <SignUpButton mode="modal">
+          <SignUpButton mode="modal" forceRedirectUrl="/completar-cadastro">
             <button
               type="button"
               className={`inline-flex items-center justify-center rounded-lg bg-black text-white font-light hover:bg-gray-800 transition-colors ${buttonClasses}`}

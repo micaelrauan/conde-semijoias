@@ -51,6 +51,7 @@ export async function createDraftOrder(
     firstName?: string;
     lastName?: string;
     email?: string;
+    phone?: string;
   },
 ): Promise<DraftOrderResult> {
   if (!process.env.NUVEMSHOP_STORE_ID || !process.env.NUVEMSHOP_TOKEN) {
@@ -68,6 +69,7 @@ export async function createDraftOrder(
 
   const body: Record<string, unknown> = { products };
   if (customer?.email) body.contact_email = customer.email;
+  if (customer?.phone) body.contact_phone = customer.phone;
 
   const trimmedFirstName = customer?.firstName?.trim();
   const trimmedLastName = customer?.lastName?.trim();
