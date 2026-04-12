@@ -36,7 +36,7 @@ function formatCurrency(value: number): string {
 }
 
 function mapToOfertaItems(
-  products: Awaited<ReturnType<typeof getProdutos>>,
+  products: Awaited<ReturnType<typeof getProdutos>>["products"],
 ): OfertaItem[] {
   const ofertas: OfertaItem[] = [];
 

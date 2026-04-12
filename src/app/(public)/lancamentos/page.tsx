@@ -36,7 +36,7 @@ function formatCurrency(value: number): string {
 }
 
 function mapLancamentos(
-  products: Awaited<ReturnType<typeof getProdutos>>,
+  products: Awaited<ReturnType<typeof getProdutos>>["products"],
 ): LancamentoItem[] {
   return products
     .slice()
