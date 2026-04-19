@@ -3,10 +3,22 @@ import type { MetadataRoute } from "next";
 const CANONICAL_BASE = "https://condesemijoias.com.br";
 
 function resolveBaseUrl(): string {
+  if (process.env.VERCEL_ENV === "production") return CANONICAL_BASE;
+
   const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   if (!raw) return CANONICAL_BASE;
 
-  return raw.replace(/\/$/, "");
+  try {
+    const parsed = new URL(raw);
+
+    if (parsed.hostname.endsWith("vercel.app")) {
+      return CANONICAL_BASE;
+    }
+
+    return `${parsed.protocol}//${parsed.host}`;
+  } catch {
+    return CANONICAL_BASE;
+  }
 }
 
 const BASE = resolveBaseUrl();
