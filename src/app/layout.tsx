@@ -35,7 +35,13 @@ function resolveSiteUrl(): URL {
   const normalized = raw.replace(/\/$/, "");
 
   try {
-    return new URL(normalized);
+    const parsed = new URL(normalized);
+
+    if (parsed.hostname.endsWith("vercel.app")) {
+      return new URL(CANONICAL_BASE);
+    }
+
+    return parsed;
   } catch {
     return new URL(CANONICAL_BASE);
   }
@@ -66,6 +72,11 @@ export const metadata: Metadata = {
   ],
   description:
     "Loja online da Conde Semijoias com colecoes exclusivas, pecas sofisticadas e envio para todo o Brasil.",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
   robots: {
     index: true,
     follow: true,
