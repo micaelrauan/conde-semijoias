@@ -11,6 +11,10 @@ export interface NuvemshopVariant {
   promotional_price?: string | null;
   stock: number | null;
   sku: string | null;
+  values?: Array<string | { pt?: string; es?: string; en?: string }>;
+  option_values?: Array<string | { pt?: string; es?: string; en?: string }>;
+  attributes?: Array<string | { pt?: string; es?: string; en?: string }>;
+  name?: string | { pt?: string; es?: string; en?: string };
   weight?: string | number | null;
   width?: string | number | null;
   height?: string | number | null;

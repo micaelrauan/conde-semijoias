@@ -26,6 +26,14 @@ export interface ProductImage {
   alt?: string;
 }
 
+export interface ProductVariant {
+  id: number;
+  name: string;
+  price: number;
+  compare_at_price?: number;
+  stock: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -36,6 +44,7 @@ export interface Product {
   category_id?: string;
   image_url?: string;
   images?: ProductImage[];
+  variants?: ProductVariant[];
   slug: string;
   is_active: boolean;
   compare_at_price?: number;

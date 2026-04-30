@@ -18,13 +18,14 @@ type CartProductSource =
       price: number;
       image_url?: string;
       slug: string;
-      variants?: Array<{ id: number; price: string }>;
+      variants?: Array<{ id: number; price: string | number; name?: string }>;
     };
 
 export interface CartItem {
   id: number;
   variantId: number;
   name: string;
+  variantName?: string;
   price: number;
   image: string;
   quantity: number;
@@ -63,6 +64,47 @@ function isNuvemshopProduct(
   return typeof (product as NuvemshopProduct).name === "object";
 }
 
+function readVariantText(
+  value: string | { pt?: string; es?: string; en?: string } | undefined,
+): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  if (typeof value === "string") {
+    return value.trim() || undefined;
+  }
+
+  return value.pt || value.es || value.en || undefined;
+}
+
+function getNuvemshopVariantLabel(
+  variant: NuvemshopProduct["variants"][number] | undefined,
+): string | undefined {
+  if (!variant) {
+    return undefined;
+  }
+
+  const possibleGroups = [variant.values, variant.option_values, variant.attributes];
+
+  for (const group of possibleGroups) {
+    if (!Array.isArray(group) || group.length === 0) {
+      continue;
+    }
+
+    const label = group
+      .map((entry) => readVariantText(entry))
+      .filter((entry): entry is string => Boolean(entry))
+      .join(" / ");
+
+    if (label) {
+      return label;
+    }
+  }
+
+  return readVariantText(variant.name) || variant.sku || undefined;
+}
+
 function mapCartItem(product: CartProductSource, variantId: number): CartItem {
   const productId = Number(product.id);
 
@@ -75,6 +117,7 @@ function mapCartItem(product: CartProductSource, variantId: number): CartItem {
       id: productId,
       variantId,
       name: product.name.pt,
+      variantName: getNuvemshopVariantLabel(variant),
       price: parsePriceToCents(variant?.price || 0),
       image: product.images[0]?.src || "",
       quantity: 1,
@@ -82,11 +125,18 @@ function mapCartItem(product: CartProductSource, variantId: number): CartItem {
     };
   }
 
+  const selectedVariant = product.variants?.find((item) => item.id === variantId);
+  const selectedVariantName = selectedVariant?.name?.trim();
+
   return {
     id: productId,
     variantId,
     name: product.name,
-    price: parsePriceToCents(product.price),
+    variantName:
+      selectedVariantName && selectedVariantName !== "Padrão"
+        ? selectedVariantName
+        : undefined,
+    price: parsePriceToCents(selectedVariant?.price ?? product.price),
     image: product.image_url || "",
     quantity: 1,
     slug: product.slug,

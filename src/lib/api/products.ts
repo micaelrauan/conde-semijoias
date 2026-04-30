@@ -68,6 +68,46 @@ function normalizeDescription(rawDescription: string): string {
   return normalizeBrokenEncoding(stripHtml(rawDescription));
 }
 
+function readLocalizedValue(
+  value: string | { pt?: string; es?: string; en?: string } | undefined,
+): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  if (typeof value === "string") {
+    return value.trim() || undefined;
+  }
+
+  return value.pt || value.es || value.en || undefined;
+}
+
+function getVariantLabel(variant: NuvemshopProduct["variants"][number]): string {
+  const possibleGroups = [variant.values, variant.option_values, variant.attributes];
+
+  for (const group of possibleGroups) {
+    if (!Array.isArray(group) || group.length === 0) {
+      continue;
+    }
+
+    const label = group
+      .map((entry) => readLocalizedValue(entry))
+      .filter((entry): entry is string => Boolean(entry && entry.trim()))
+      .join(" / ");
+
+    if (label) {
+      return label;
+    }
+  }
+
+  const variantName = readLocalizedValue(variant.name);
+  if (variantName) {
+    return variantName;
+  }
+
+  return variant.sku || `Opção ${variant.id}`;
+}
+
 function toOptionalNumber(
   value: string | number | null | undefined,
 ): number | undefined {
@@ -155,6 +195,41 @@ function mapProduct(product: NuvemshopProduct): Product {
   const height = toOptionalNumber(firstVariant?.height);
   const depth = toOptionalNumber(firstVariant?.depth);
 
+  const variants = product.variants.map((variant) => {
+    const variantBasePrice = Number(variant.price || 0);
+    const variantPromotionalRaw = variant.promotional_price;
+    const variantPromotionalPrice =
+      typeof variantPromotionalRaw === "string" && variantPromotionalRaw.trim()
+        ? Number(variantPromotionalRaw)
+        : null;
+
+    const variantPrice =
+      variantPromotionalPrice &&
+      Number.isFinite(variantPromotionalPrice) &&
+      variantPromotionalPrice > 0 &&
+      variantPromotionalPrice < variantBasePrice
+        ? variantPromotionalPrice
+        : variantBasePrice;
+
+    const variantCompareAtRaw =
+      typeof variant.compare_at_price === "string" && variant.compare_at_price.trim()
+        ? Number(variant.compare_at_price)
+        : null;
+
+    const variantCompareAt =
+      variantCompareAtRaw && Number.isFinite(variantCompareAtRaw) && variantCompareAtRaw > variantPrice
+        ? variantCompareAtRaw
+        : undefined;
+
+    return {
+      id: variant.id,
+      name: getVariantLabel(variant),
+      price: Number.isFinite(variantPrice) ? variantPrice : 0,
+      compare_at_price: variantCompareAt,
+      stock: Math.max(0, variant.stock ?? 0),
+    };
+  });
+
   return {
     id: String(product.id),
     name: product.name.pt,
@@ -167,6 +242,7 @@ function mapProduct(product: NuvemshopProduct): Product {
     depth,
     stock: firstVariant?.stock ?? 0,
     variant_id: firstVariant?.id,
+    variants,
     category_id: firstCategory ? String(firstCategory.id) : undefined,
     image_url: getMainImage(product),
     images: product.images.map((img) => ({

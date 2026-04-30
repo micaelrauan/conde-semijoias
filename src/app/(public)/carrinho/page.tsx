@@ -142,6 +142,11 @@ export default function CarrinhoPage() {
                     <h3 className="text-base font-light text-gray-900 mb-2">
                       {item.name}
                     </h3>
+                    {item.variantName && (
+                      <p className="text-xs text-gray-500 mb-2">
+                        Cor: {item.variantName}
+                      </p>
+                    )}
                     <p className="text-lg font-light text-black mb-4">
                       {formatCurrency(item.price)}
                     </p>

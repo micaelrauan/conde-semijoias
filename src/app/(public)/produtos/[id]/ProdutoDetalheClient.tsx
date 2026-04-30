@@ -88,6 +88,7 @@ export default function ProdutoDetalheClient() {
   const [error, setError] = useState<string | null>(null);
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [selectedVariantId, setSelectedVariantId] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [expandedFrete, setExpandedFrete] = useState(false);
   const [cepInput, setCepInput] = useState("");
@@ -190,21 +191,61 @@ export default function ProdutoDetalheClient() {
     return product.images;
   }, [product]);
 
-  const canAddToCart = Boolean(product && (product.stock ?? 0) > 0);
+  const productVariants = useMemo(() => product?.variants ?? [], [product]);
+  const hasVariantOptions = productVariants.length > 1;
 
-  const discountPrice = product?.price ?? 0;
-  const originalPrice = product?.compare_at_price ?? discountPrice;
+  const selectedVariant = useMemo(() => {
+    if (selectedVariantId === null) {
+      return undefined;
+    }
+
+    return productVariants.find((variant) => variant.id === selectedVariantId);
+  }, [productVariants, selectedVariantId]);
+
+  const activeVariant = hasVariantOptions
+    ? selectedVariant
+    : productVariants[0] ||
+      (product
+        ? {
+            id: product.variant_id ?? Number(product.id),
+            name: "Padrão",
+            price: product.price,
+            compare_at_price: product.compare_at_price,
+            stock: product.stock ?? 0,
+          }
+        : undefined);
+
+  const canAddToCart = Boolean(activeVariant && activeVariant.stock > 0);
+  const mustSelectColor = hasVariantOptions && !selectedVariant;
+
+  useEffect(() => {
+    if (!product) {
+      setSelectedVariantId(null);
+      return;
+    }
+
+    if (productVariants.length === 1) {
+      setSelectedVariantId(productVariants[0].id);
+      return;
+    }
+
+    setSelectedVariantId(null);
+  }, [product, productVariants]);
+
+  const discountPrice = activeVariant?.price ?? product?.price ?? 0;
+  const originalPrice =
+    activeVariant?.compare_at_price ?? product?.compare_at_price ?? discountPrice;
   const hasDiscount = originalPrice > discountPrice;
   const discountPercentage = hasDiscount
     ? Math.round(((originalPrice - discountPrice) / originalPrice) * 100)
     : 0;
 
   const handleAddToCart = () => {
-    if (!product || !canAddToCart) {
+    if (!product || !activeVariant || !canAddToCart || mustSelectColor) {
       return;
     }
 
-    const variantId = product.variant_id ?? Number(product.id);
+    const variantId = activeVariant.id;
 
     addItem(product, variantId);
 
@@ -213,11 +254,11 @@ export default function ProdutoDetalheClient() {
   };
 
   const handleBuyNow = () => {
-    if (!product || !canAddToCart) {
+    if (!product || !activeVariant || !canAddToCart || mustSelectColor) {
       return;
     }
 
-    const variantId = product.variant_id ?? Number(product.id);
+    const variantId = activeVariant.id;
 
     addItem(product, variantId);
 
@@ -454,25 +495,66 @@ export default function ProdutoDetalheClient() {
             </div>
 
             <div>
-              {typeof product.stock === "number" && (
+              {(activeVariant || typeof product.stock === "number") && (
                 <span
                   className={`inline-block px-4 py-2 rounded-full text-xs font-medium ${
-                    product.stock > 0
+                    mustSelectColor
+                      ? "bg-amber-100 text-amber-800"
+                      : (activeVariant?.stock ?? product.stock) > 0
                       ? "bg-gray-100 text-gray-800"
                       : "bg-red-100 text-red-700"
                   }`}
                 >
-                  {product.stock > 0
-                    ? `${product.stock} em estoque`
-                    : "Esgotado"}
+                  {mustSelectColor
+                    ? "Selecione uma cor"
+                    : (activeVariant?.stock ?? product.stock) > 0
+                      ? `${activeVariant?.stock ?? product.stock} em estoque`
+                      : "Esgotado"}
                 </span>
               )}
             </div>
 
+            {hasVariantOptions && (
+              <div className="flex flex-col gap-3">
+                <p className="text-sm font-semibold text-gray-900">Cor</p>
+                <div className="flex flex-wrap gap-2">
+                  {productVariants.map((variant) => {
+                    const isSelected = selectedVariantId === variant.id;
+                    const isDisabled = variant.stock <= 0;
+
+                    return (
+                      <button
+                        key={variant.id}
+                        type="button"
+                        onClick={() => setSelectedVariantId(variant.id)}
+                        disabled={isDisabled}
+                        className={`px-4 py-2 rounded-lg border text-sm transition-colors ${
+                          isSelected
+                            ? "border-black bg-black text-white"
+                            : "border-gray-300 text-gray-700 hover:border-black"
+                        } ${
+                          isDisabled
+                            ? "opacity-50 cursor-not-allowed line-through"
+                            : ""
+                        }`}
+                      >
+                        {variant.name}
+                      </button>
+                    );
+                  })}
+                </div>
+                {mustSelectColor && (
+                  <p className="text-xs text-amber-700">
+                    Escolha uma cor para adicionar à sacola.
+                  </p>
+                )}
+              </div>
+            )}
+
             <div className="flex flex-col gap-3">
               <button
                 onClick={handleAddToCart}
-                disabled={!canAddToCart}
+                disabled={!canAddToCart || mustSelectColor}
                 className="w-full bg-white border border-gray-300 text-black py-3 rounded-xl font-semibold text-sm sm:text-base uppercase tracking-wider hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed transition-colors relative overflow-hidden"
               >
                 {showFeedback ? "✓ Adicionado à Sacola!" : "Adicionar à Sacola"}
@@ -480,7 +562,7 @@ export default function ProdutoDetalheClient() {
 
               <button
                 onClick={handleBuyNow}
-                disabled={!canAddToCart}
+                disabled={!canAddToCart || mustSelectColor}
                 className="w-full bg-black border border-black text-white py-3.5 rounded-xl font-bold text-sm sm:text-base uppercase tracking-wider hover:bg-gray-900 disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors"
               >
                 Comprar agora
