@@ -37,20 +37,42 @@ function getApiUrl(path: string, params?: Record<string, string>): string {
 
 function stripHtml(html: string): string {
   if (!html) return "";
-  return html
+
+  const normalizedBreaks = html
+    .replace(/<\s*br\s*\/?\s*>/gi, "\n")
+    .replace(/<\s*\/p\s*>/gi, "\n")
+    .replace(/<\s*p[^>]*>/gi, "");
+
+  const decoded = decodeHtmlEntities(normalizedBreaks);
+
+  return decoded
     .replace(/<[^>]*>/g, "") // Remove tags HTML
-    .replace(/&nbsp;/g, " ") // Substitui entidades
-    .replace(/&quot;/g, '"')
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\u00a0/g, " ")
     .replace(/\s+/g, " ") // Remove espaços múltiplos
     .trim();
 }
 
+function decodeHtmlEntities(value: string): string {
+  if (typeof window === "undefined") {
+    return value;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.innerHTML = value;
+  return textarea.value;
+}
+
+function countMojibakeMarkers(value: string): number {
+  const matches = value.match(/Ã.|Â.|â€|â€™|â€œ|â€\u009d|â€“|â€”|â€¦/g);
+  return matches ? matches.length : 0;
+}
+
 function normalizeBrokenEncoding(value: string): string {
   // Corrige textos UTF-8 interpretados como latin1 (ex: "AÃ§o" -> "Aço").
-  if (!value || !/[ÃÂâ]/.test(value)) {
+  const hasLikelyMojibake = /Ã.|Â.|â€|â€™|â€œ|â€\u009d|â€“|â€”|â€¦/.test(value);
+
+  if (!value || !hasLikelyMojibake) {
     return value;
   }
 
@@ -58,7 +80,12 @@ function normalizeBrokenEncoding(value: string): string {
     const bytes = Uint8Array.from(
       value.split("").map((char) => char.charCodeAt(0) & 0xff),
     );
-    return new TextDecoder("utf-8", { fatal: false }).decode(bytes);
+    const decoded = new TextDecoder("utf-8", { fatal: false }).decode(bytes);
+
+    // Mantém o texto original quando a tentativa de correção piora o resultado.
+    return countMojibakeMarkers(decoded) <= countMojibakeMarkers(value)
+      ? decoded
+      : value;
   } catch {
     return value;
   }
