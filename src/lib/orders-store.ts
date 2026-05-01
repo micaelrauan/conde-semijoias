@@ -43,7 +43,9 @@ function writeOrders(orders: StoredOrder[]) {
 }
 
 export function saveOrder(order: StoredOrder) {
-  const orders = readOrders().filter((o) => o.id !== order.id);
+  const orders = readOrders().filter(
+    (o) => o.id !== order.id && o.token !== order.token,
+  );
   writeOrders([order, ...orders]);
 }
 

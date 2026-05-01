@@ -5,6 +5,7 @@ import {
   CheckoutItem,
   createDraftOrder,
 } from "@/lib/nuvemshop-checkout";
+import { saveOrder } from "@/lib/orders-store";
 
 export async function POST(request: NextRequest) {
   console.log("=== POST /api/checkout called ===");
@@ -63,6 +64,25 @@ export async function POST(request: NextRequest) {
     const draftOrder = await createDraftOrder(items as CheckoutItem[], {
       ...customer,
       phone: userWhatsapp,
+    });
+
+    const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const totalInReais = (total / 100).toFixed(2);
+
+    saveOrder({
+      id: draftOrder.id,
+      token: draftOrder.token,
+      customerEmail: customer?.email ?? "",
+      customerName: customer?.name ?? customer?.firstName ?? "Cliente",
+      total: totalInReais,
+      subtotal: totalInReais,
+      status: "pending",
+      createdAt: new Date().toISOString(),
+      products: items.map((item) => ({
+        name: item.name,
+        quantity: item.quantity,
+        price: (item.price / 100).toFixed(2),
+      })),
     });
 
     console.log("Checkout URL generated:", draftOrder.checkoutUrl);
