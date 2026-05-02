@@ -53,7 +53,7 @@ export default function HomePage() {
       subtitle: "Sofisticação Atemporal",
       cta: "Ver Detalhes",
       link: "/produtos?categoria=classicos",
-      image: "/hero/mobile/slide1.png",
+      image: "/hero/mobile/slide1.jpg",
       textColor: "text-white",
     },
     {
@@ -61,7 +61,7 @@ export default function HomePage() {
       subtitle: "A Beleza nos Detalhes",
       cta: "Explorar",
       link: "/produtos?categoria=minimalista",
-      image: "/hero/mobile/slide2.png",
+      image: "/hero/mobile/slide2.jpg",
       textColor: "text-white",
     },
     {
@@ -268,6 +268,7 @@ export default function HomePage() {
                   className="object-cover object-center"
                   priority={index === 0}
                   loading={index === 0 ? undefined : "lazy"}
+                  quality={100}
                 />
               </div>
 
@@ -322,21 +323,22 @@ export default function HomePage() {
       <section className="py-16 px-4 md:px-8">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
           <Link
-            href="/produtos?categoria=outlet"
+            href="/produtos?categoria=ofertas"
             className="group relative h-125 bg-gray-100 overflow-hidden"
           >
             <Image
-              src="/assets/home/outlet.png"
-              alt="Outlet"
+              src="/assets/home/outlet-mobile.jpg"
+              alt="Ofertas"
               fill
               className="object-cover"
               loading="lazy"
               sizes="(max-width: 768px) 100vw, 50vw"
+              quality={100}
             />
             <div className="absolute inset-0 bg-linear-to-t from-gray-900/70 to-transparent"></div>
             <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-              <h2 className="text-4xl font-light mb-2">Outlet</h2>
-              <p className="text-lg font-light mb-4">Até 70% OFF</p>
+              <h2 className="text-4xl font-light mb-2">Ofertas</h2>
+              <p className="text-lg font-light mb-4">Seleção de produtos com promoções imperdíveis</p>
               <span className="inline-block border-b-2 border-white pb-1 text-sm font-medium tracking-widest uppercase group-hover:tracking-wider transition-all">
                 Ver Tudo
               </span>
@@ -348,7 +350,7 @@ export default function HomePage() {
             className="group relative h-125 bg-gray-100 overflow-hidden"
           >
             <Image
-              src="/assets/home/novidades.png"
+              src="/assets/home/novidades.jpg"
               alt="Novidades"
               fill
               className="object-cover"

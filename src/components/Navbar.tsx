@@ -24,7 +24,7 @@ export default function Navbar() {
   const promos = [
     "Frete gratis para compras acima de R$ 299",
     "Ate 10x sem juros no cartao de credito",
-    "Descontos de ate 50% em produtos selecionados",
+    "Garantia de 1 ano em todas as pecas",
     "Entrega expressa para sua regiao",
   ];
 

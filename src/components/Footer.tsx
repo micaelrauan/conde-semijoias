@@ -11,17 +11,11 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Logo e Descrição */}
           <div className="flex flex-col items-start gap-6">
-            <div className="relative w-48 h-24 sm:w-56 sm:h-28 md:w-60 md:h-32 lg:w-72 lg:h-40 shrink-0">
-              <Image
-                src="/logo/conde-semijoias.png"
-                alt="Conde Semijoias"
-                fill
-                className="object-contain"
-                loading="lazy"
-                quality={95}
-                sizes="(max-width: 640px) 192px, (max-width: 768px) 224px, (max-width: 1024px) 240px, 288px"
-              />
-            </div>
+            <Link href="/" className="shrink-0 inline-block">
+              <h2 className="text-2xl sm:text-3xl font-light tracking-wider text-white">
+                CONDE SEMIJOIAS
+              </h2>
+            </Link>
             <p className="text-gray-400 font-light text-sm leading-relaxed max-w-xs">
               Semijoias de qualidade, design exclusivo e entrega rápida para
               você brilhar sempre.
