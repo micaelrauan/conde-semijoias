@@ -26,7 +26,7 @@ export default function TrocasEDevolucoesPage() {
               2. Como solicitar
             </h2>
             <p className="mt-2 leading-relaxed">
-              Envie e-mail para contato@condesemijoias.com.br com numero do
+              Envie e-mail para condesemijoias.site@gmail.com com numero do
               pedido e fotos do produto.
             </p>
           </section>

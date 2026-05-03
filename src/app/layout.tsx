@@ -119,8 +119,8 @@ const structuredData = {
         {
           "@type": "ContactPoint",
           contactType: "customer support",
-          telephone: "+55-85-99999-9999",
-          email: "contato@condesemijoias.com.br",
+          telephone: "+55-85-99839-5280",
+          email: "condesemijoias.site@gmail.com",
           areaServed: "BR",
           availableLanguage: ["pt-BR"],
         },

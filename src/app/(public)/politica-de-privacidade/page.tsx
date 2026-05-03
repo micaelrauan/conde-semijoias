@@ -59,7 +59,7 @@ export default function PoliticaDePrivacidadePage() {
             <p className="mt-2 leading-relaxed">
               Voce pode solicitar acesso, correcao, exclusao e portabilidade dos
               dados, alem de revogar consentimentos. Para exercer seus direitos,
-              fale com: contato@condesemijoias.com.br.
+              fale com: condesemijoias.site@gmail.com.
             </p>
           </section>
 
@@ -76,7 +76,7 @@ export default function PoliticaDePrivacidadePage() {
             <h2 className="text-xl font-medium text-black">6. Contato</h2>
             <p className="mt-2 leading-relaxed">
               Em caso de duvidas sobre privacidade e protecao de dados, entre em
-              contato: contato@condesemijoias.com.br.
+              contato: condesemijoias.site@gmail.com.
             </p>
           </section>
         </div>

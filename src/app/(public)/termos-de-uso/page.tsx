@@ -76,7 +76,7 @@ export default function TermosDeUsoPage() {
           <section>
             <h2 className="text-xl font-medium text-black">7. Contato</h2>
             <p className="mt-2 leading-relaxed">
-              Para suporte e duvidas: contato@condesemijoias.com.br.
+              Para suporte e duvidas: condesemijoias.site@gmail.com.
             </p>
           </section>
         </div>

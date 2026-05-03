@@ -468,9 +468,9 @@ export default function ProdutoDetalheClient() {
               </div>
 
               <p className="text-gray-600 text-sm font-light">
-                4x sem juros de{" "}
+                3x sem juros de{" "}
                 <span className="font-semibold">
-                  {formatCurrency(discountPrice / 4)}
+                  {formatCurrency(discountPrice / 3)}
                 </span>
               </p>
             </div>

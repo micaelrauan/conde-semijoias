@@ -15,12 +15,12 @@ export default function ContatoPage() {
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           <article className="rounded-xl border border-gray-200 bg-white p-5">
             <h2 className="text-lg font-medium text-black">E-mail</h2>
-            <p className="mt-2 text-gray-700">contato@condesemijoias.com.br</p>
+            <p className="mt-2 text-gray-700">condesemijoias.site@gmail.com</p>
           </article>
 
           <article className="rounded-xl border border-gray-200 bg-white p-5">
             <h2 className="text-lg font-medium text-black">WhatsApp</h2>
-            <p className="mt-2 text-gray-700">+55 (85) 9 9999-9999</p>
+            <p className="mt-2 text-gray-700">+55 (85) 9 9839-5280</p>
           </article>
 
           <article className="rounded-xl border border-gray-200 bg-white p-5">

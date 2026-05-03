@@ -22,10 +22,9 @@ export default function Navbar() {
   const closeMobileMenu = () => setIsMenuOpen(false);
 
   const promos = [
-    "Frete gratis para compras acima de R$ 299",
-    "Ate 10x sem juros no cartao de credito",
-    "Garantia de 1 ano em todas as pecas",
-    "Entrega expressa para sua regiao",
+    "Parcele em ate 3x sem juros no cartao de credito",
+    "Garantia de 6 meses em peças selecionadas!",
+    "Semijoias com qualidade e design exclusivo",
   ];
 
   // Rotacao automatica das promocoes
@@ -142,12 +141,7 @@ export default function Navbar() {
               >
                 Produtos
               </Link>
-              <Link
-                href="/categorias"
-                className="text-gray-600 hover:text-black font-light transition-colors whitespace-nowrap"
-              >
-                Categorias
-              </Link>
+
               <Link
                 href="/ofertas"
                 className="text-gray-600 hover:text-black font-light transition-colors whitespace-nowrap"
@@ -366,13 +360,7 @@ export default function Navbar() {
                 >
                   Produtos
                 </Link>
-                <Link
-                  href="/categorias"
-                  onClick={closeMobileMenu}
-                  className="py-2 text-gray-600 hover:text-black font-light"
-                >
-                  Categorias
-                </Link>
+
                 <Link
                   href="/ofertas"
                   onClick={closeMobileMenu}
@@ -475,12 +463,7 @@ export default function Navbar() {
               >
                 Produtos
               </Link>
-              <Link
-                href="/categorias"
-                className="text-gray-600 hover:text-black font-light transition-colors whitespace-nowrap text-sm"
-              >
-                Categorias
-              </Link>
+
               <Link
                 href="/ofertas"
                 className="text-gray-600 hover:text-black font-light transition-colors whitespace-nowrap text-sm"
