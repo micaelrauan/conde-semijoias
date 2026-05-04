@@ -40,9 +40,7 @@ export default function ProdutosPage() {
     setSearchQuery(q);
     
     const cat = searchParams.get("categoria");
-    if (cat) {
-      setSelectedCategory(cat);
-    }
+    setSelectedCategory(cat || "all");
   }, [searchParams]);
 
   useEffect(() => {
@@ -61,13 +59,12 @@ export default function ProdutosPage() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const categoryId =
-        selectedCategory === "all" ? undefined : Number(selectedCategory);
-      const productsData = await getProducts(
-        typeof categoryId === "number" && !Number.isNaN(categoryId)
-          ? { category_id: categoryId }
-          : undefined,
-      );
+      const params =
+        selectedCategory !== "all"
+          ? { category_id: Number(selectedCategory) }
+          : undefined;
+
+      const productsData = await getProducts(params);
       setProducts(productsData);
       setFilteredProducts(productsData);
     } catch (error) {
@@ -80,11 +77,6 @@ export default function ProdutosPage() {
   // Filtrar e ordenar produtos
   useEffect(() => {
     let filtered = [...products];
-
-    // Filtro de categoria
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter((p) => p.category?.id === selectedCategory);
-    }
 
     // Filtro de preço
     filtered = filtered.filter(
@@ -116,7 +108,7 @@ export default function ProdutosPage() {
     });
 
     setFilteredProducts(filtered);
-  }, [products, selectedCategory, priceRange, searchQuery, sortBy]);
+  }, [products, priceRange, searchQuery, sortBy]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
