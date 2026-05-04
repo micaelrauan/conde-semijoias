@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, type FormEvent } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useCart } from "@/contexts/CartContext";
+import { getProducts } from "@/lib/api/products";
+import type { Product } from "@/lib/types";
 
 const UserMenu = dynamic(() => import("@/components/header/UserMenu"), {
   ssr: false,
@@ -14,12 +16,63 @@ const UserMenu = dynamic(() => import("@/components/header/UserMenu"), {
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [currentPromo, setCurrentPromo] = useState(0);
   const pathname = usePathname();
+  const router = useRouter();
   const { itemCount } = useCart();
   const closeMobileMenu = () => setIsMenuOpen(false);
+
+  const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const term = String(formData.get("q") || "").trim();
+    closeMobileMenu();
+    router.push(term ? `/produtos?q=${encodeURIComponent(term)}` : "/produtos");
+  };
+
+  const handleSuggestionClick = (term: string) => {
+    closeMobileMenu();
+    setSearchQuery(term);
+    router.push(`/produtos?q=${encodeURIComponent(term)}`);
+  };
+
+  const suggestions = useMemo(() => {
+    const term = searchQuery.trim().toLowerCase();
+
+    if (term.length < 2) {
+      return [];
+    }
+
+    return products
+      .filter((product) => {
+        const name = product.name.toLowerCase();
+        const category = product.category?.name?.toLowerCase() || "";
+        const description = product.description?.toLowerCase() || "";
+
+        return (
+          name.includes(term) ||
+          category.includes(term) ||
+          description.includes(term)
+        );
+      })
+      .sort((firstProduct, secondProduct) => {
+        const firstName = firstProduct.name.toLowerCase();
+        const secondName = secondProduct.name.toLowerCase();
+        const firstStartsWith = firstName.startsWith(term) ? 0 : 1;
+        const secondStartsWith = secondName.startsWith(term) ? 0 : 1;
+
+        if (firstStartsWith !== secondStartsWith) {
+          return firstStartsWith - secondStartsWith;
+        }
+
+        return firstName.localeCompare(secondName);
+      })
+      .slice(0, 6);
+  }, [products, searchQuery]);
 
   const promos = [
     "Parcele em ate 3x sem juros no cartao de credito",
@@ -33,6 +86,27 @@ export default function Navbar() {
       setCurrentPromo((prev) => (prev + 1) % promos.length);
     }, 8000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadSuggestions = async () => {
+      try {
+        const nextProducts = await getProducts();
+        if (mounted) {
+          setProducts(nextProducts);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar sugestões da busca:", error);
+      }
+    };
+
+    loadSuggestions();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -68,6 +142,37 @@ export default function Navbar() {
   useEffect(() => {
     setIsMenuOpen(false);
   }, [pathname]);
+
+  const suggestionPanel = suggestions.length > 0 && (
+    <div className="absolute left-0 right-0 top-full mt-2 z-50 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl">
+      <div className="px-4 py-2 text-xs uppercase tracking-[0.2em] text-gray-400">
+        Sugestões
+      </div>
+      <div className="max-h-72 overflow-y-auto">
+        {suggestions.map((product) => (
+          <button
+            key={product.id}
+            type="button"
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => handleSuggestionClick(product.name)}
+            className="flex w-full items-center gap-3 border-t border-gray-100 px-4 py-3 text-left transition-colors hover:bg-gray-50"
+          >
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-500">
+              {product.category?.name?.slice(0, 2) || "PR"}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-medium text-black">
+                {product.name}
+              </div>
+              <div className="truncate text-xs text-gray-500">
+                {product.category?.name || "Produto"}
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -120,7 +225,7 @@ export default function Navbar() {
       <nav
         className={`bg-white shadow-md fixed left-0 right-0 z-40 transition-all duration-300 ease-out ${
           isVisible ? "translate-y-0" : "-translate-y-full"
-        } [font-family:var(--font-poppins)] font-light top-[36px] md:top-[40px]`}
+        } [font-family:var(--font-poppins)] font-light top-9 md:top-10`}
       >
         {/* Main Navbar */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -159,7 +264,7 @@ export default function Navbar() {
             {/* Search Bar + Icons - Desktop */}
             <div className="hidden md:flex items-center gap-6">
               {/* Search Bar */}
-              <div className="relative w-64">
+              <form onSubmit={handleSearchSubmit} className="relative w-64">
                 {/* Ícone de busca */}
                 <svg
                   className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
@@ -176,6 +281,7 @@ export default function Navbar() {
                 </svg>
 
                 <input
+                  name="q"
                   type="text"
                   placeholder="Buscar..."
                   value={searchQuery}
@@ -186,6 +292,7 @@ export default function Navbar() {
                 {/* Botão limpar */}
                 {searchQuery && (
                   <button
+                    type="button"
                     onClick={() => setSearchQuery("")}
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 transition-colors"
                     aria-label="Limpar busca"
@@ -205,7 +312,8 @@ export default function Navbar() {
                     </svg>
                   </button>
                 )}
-              </div>
+                {suggestionPanel}
+              </form>
 
               {/* Icons */}
               <div className="flex items-center gap-5">
@@ -294,7 +402,7 @@ export default function Navbar() {
           <div className="md:hidden bg-white border-t border-gray-200 max-h-[calc(100vh-120px)] overflow-y-auto overscroll-contain">
             <div className="px-4 py-4 space-y-4">
               {/* Mobile Search */}
-              <div className="relative">
+              <form onSubmit={handleSearchSubmit} className="relative">
                 {/* Ícone de busca */}
                 <svg
                   className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
@@ -311,6 +419,7 @@ export default function Navbar() {
                 </svg>
 
                 <input
+                  name="q"
                   type="text"
                   placeholder="Buscar produtos..."
                   value={searchQuery}
@@ -321,6 +430,7 @@ export default function Navbar() {
                 {/* Botão limpar */}
                 {searchQuery && (
                   <button
+                    type="button"
                     onClick={() => setSearchQuery("")}
                     className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 transition-colors"
                     aria-label="Limpar busca"
@@ -340,7 +450,8 @@ export default function Navbar() {
                     </svg>
                   </button>
                 )}
-              </div>
+                {suggestionPanel}
+              </form>
 
               {/* Mobile Navigation Links */}
               <div className="flex flex-col space-y-2">
@@ -481,7 +592,7 @@ export default function Navbar() {
             {/* Search Bar + Icons - Direita */}
             <div className="hidden md:flex items-center gap-4">
               {/* Search Bar Compacta */}
-              <div className="relative w-56">
+              <form onSubmit={handleSearchSubmit} className="relative w-56">
                 <svg
                   className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
                   fill="none"
@@ -497,6 +608,7 @@ export default function Navbar() {
                 </svg>
 
                 <input
+                  name="q"
                   type="text"
                   placeholder="Buscar..."
                   value={searchQuery}
@@ -506,6 +618,7 @@ export default function Navbar() {
 
                 {searchQuery && (
                   <button
+                    type="button"
                     onClick={() => setSearchQuery("")}
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 transition-colors"
                     aria-label="Limpar busca"
@@ -525,7 +638,8 @@ export default function Navbar() {
                     </svg>
                   </button>
                 )}
-              </div>
+                {suggestionPanel}
+              </form>
 
               {/* Ícones Compactos */}
               <div className="flex items-center gap-4">
