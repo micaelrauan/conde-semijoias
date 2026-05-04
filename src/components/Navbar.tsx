@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useCart } from "@/contexts/CartContext";
-import { getProducts } from "@/lib/api/products";
-import type { Product } from "@/lib/types";
 
 const UserMenu = dynamic(() => import("@/components/header/UserMenu"), {
   ssr: false,
@@ -16,7 +14,6 @@ const UserMenu = dynamic(() => import("@/components/header/UserMenu"), {
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [products, setProducts] = useState<Product[]>([]);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [currentPromo, setCurrentPromo] = useState(0);
@@ -34,46 +31,6 @@ export default function Navbar() {
     router.push(term ? `/produtos?q=${encodeURIComponent(term)}` : "/produtos");
   };
 
-  const handleSuggestionClick = (term: string) => {
-    closeMobileMenu();
-    setSearchQuery(term);
-    router.push(`/produtos?q=${encodeURIComponent(term)}`);
-  };
-
-  const suggestions = useMemo(() => {
-    const term = searchQuery.trim().toLowerCase();
-
-    if (term.length < 2) {
-      return [];
-    }
-
-    return products
-      .filter((product) => {
-        const name = product.name.toLowerCase();
-        const category = product.category?.name?.toLowerCase() || "";
-        const description = product.description?.toLowerCase() || "";
-
-        return (
-          name.includes(term) ||
-          category.includes(term) ||
-          description.includes(term)
-        );
-      })
-      .sort((firstProduct, secondProduct) => {
-        const firstName = firstProduct.name.toLowerCase();
-        const secondName = secondProduct.name.toLowerCase();
-        const firstStartsWith = firstName.startsWith(term) ? 0 : 1;
-        const secondStartsWith = secondName.startsWith(term) ? 0 : 1;
-
-        if (firstStartsWith !== secondStartsWith) {
-          return firstStartsWith - secondStartsWith;
-        }
-
-        return firstName.localeCompare(secondName);
-      })
-      .slice(0, 6);
-  }, [products, searchQuery]);
-
   const promos = [
     "Parcele em ate 3x sem juros no cartao de credito",
     "Garantia de 6 meses em peças selecionadas!",
@@ -86,27 +43,6 @@ export default function Navbar() {
       setCurrentPromo((prev) => (prev + 1) % promos.length);
     }, 8000);
     return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const loadSuggestions = async () => {
-      try {
-        const nextProducts = await getProducts();
-        if (mounted) {
-          setProducts(nextProducts);
-        }
-      } catch (error) {
-        console.error("Erro ao carregar sugestões da busca:", error);
-      }
-    };
-
-    loadSuggestions();
-
-    return () => {
-      mounted = false;
-    };
   }, []);
 
   useEffect(() => {
@@ -142,37 +78,6 @@ export default function Navbar() {
   useEffect(() => {
     setIsMenuOpen(false);
   }, [pathname]);
-
-  const suggestionPanel = suggestions.length > 0 && (
-    <div className="absolute left-0 right-0 top-full mt-2 z-50 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl">
-      <div className="px-4 py-2 text-xs uppercase tracking-[0.2em] text-gray-400">
-        Sugestões
-      </div>
-      <div className="max-h-72 overflow-y-auto">
-        {suggestions.map((product) => (
-          <button
-            key={product.id}
-            type="button"
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => handleSuggestionClick(product.name)}
-            className="flex w-full items-center gap-3 border-t border-gray-100 px-4 py-3 text-left transition-colors hover:bg-gray-50"
-          >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-500">
-              {product.category?.name?.slice(0, 2) || "PR"}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-medium text-black">
-                {product.name}
-              </div>
-              <div className="truncate text-xs text-gray-500">
-                {product.category?.name || "Produto"}
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
 
   return (
     <>
@@ -312,7 +217,6 @@ export default function Navbar() {
                     </svg>
                   </button>
                 )}
-                {suggestionPanel}
               </form>
 
               {/* Icons */}
@@ -450,7 +354,6 @@ export default function Navbar() {
                     </svg>
                   </button>
                 )}
-                {suggestionPanel}
               </form>
 
               {/* Mobile Navigation Links */}
@@ -638,7 +541,6 @@ export default function Navbar() {
                     </svg>
                   </button>
                 )}
-                {suggestionPanel}
               </form>
 
               {/* Ícones Compactos */}

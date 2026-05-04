@@ -1,7 +1,37 @@
 import fs from "fs";
 import path from "path";
 
-const FILE = path.join(process.cwd(), "data", "orders.json");
+const LOCAL_FILE = path.join(process.cwd(), "data", "orders.json");
+const TEMP_FILE = path.join("/tmp", "conde-semijoias", "orders.json");
+
+function getOrdersFilePath(): string {
+  const overridePath = process.env.ORDERS_STORE_PATH;
+
+  if (overridePath) {
+    return overridePath;
+  }
+
+  if (
+    process.env.VERCEL ||
+    process.env.AWS_LAMBDA_FUNCTION_NAME ||
+    process.env.NETLIFY ||
+    process.env.NODE_ENV === "production"
+  ) {
+    return TEMP_FILE;
+  }
+
+  return LOCAL_FILE;
+}
+
+function getReadablePaths(): string[] {
+  const primaryPath = getOrdersFilePath();
+
+  if (primaryPath === LOCAL_FILE) {
+    return [LOCAL_FILE, TEMP_FILE];
+  }
+
+  return [primaryPath, LOCAL_FILE];
+}
 
 export interface StoredOrder {
   id: number;
@@ -28,18 +58,30 @@ export interface StoredOrder {
 }
 
 function readOrders(): StoredOrder[] {
-  try {
-    if (!fs.existsSync(FILE)) return [];
-    return JSON.parse(fs.readFileSync(FILE, "utf-8")) as StoredOrder[];
-  } catch {
-    return [];
+  for (const filePath of getReadablePaths()) {
+    try {
+      if (!fs.existsSync(filePath)) {
+        continue;
+      }
+
+      return JSON.parse(fs.readFileSync(filePath, "utf-8")) as StoredOrder[];
+    } catch {
+      continue;
+    }
   }
+
+  return [];
 }
 
 function writeOrders(orders: StoredOrder[]) {
-  const dir = path.dirname(FILE);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(FILE, JSON.stringify(orders, null, 2));
+  const filePath = getOrdersFilePath();
+  const dir = path.dirname(filePath);
+
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+
+  fs.writeFileSync(filePath, JSON.stringify(orders, null, 2));
 }
 
 export function saveOrder(order: StoredOrder) {
