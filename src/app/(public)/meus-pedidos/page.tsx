@@ -160,14 +160,14 @@ export default function MeusPedidosPage() {
   const [orders, setOrders] = useState<StoredOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [expandedOrders, setExpandedOrders] = useState<string[]>([]);
+  const [expandedOrders, setExpandedOrders] = useState<number[]>([]);
 
   const expandedSet = useMemo(
     () => new Set(expandedOrders),
     [expandedOrders],
   );
 
-  const toggleExpanded = (orderId: string) => {
+  const toggleExpanded = (orderId: number) => {
     setExpandedOrders((prev) =>
       prev.includes(orderId)
         ? prev.filter((id) => id !== orderId)
