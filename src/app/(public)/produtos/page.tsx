@@ -38,7 +38,7 @@ export default function ProdutosPage() {
   useEffect(() => {
     const q = (searchParams.get("q") || "").trim();
     setSearchQuery(q);
-    
+
     const cat = searchParams.get("categoria");
     setSelectedCategory(cat || "all");
   }, [searchParams]);

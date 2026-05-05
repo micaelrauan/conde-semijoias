@@ -57,6 +57,10 @@ export interface StoredOrder {
   };
 }
 
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
 function readOrders(): StoredOrder[] {
   for (const filePath of getReadablePaths()) {
     try {
@@ -85,14 +89,20 @@ function writeOrders(orders: StoredOrder[]) {
 }
 
 export function saveOrder(order: StoredOrder) {
+  const normalizedEmail = order.customerEmail
+    ? normalizeEmail(order.customerEmail)
+    : "";
   const orders = readOrders().filter(
     (o) => o.id !== order.id && o.token !== order.token,
   );
-  writeOrders([order, ...orders]);
+  writeOrders([{ ...order, customerEmail: normalizedEmail }, ...orders]);
 }
 
 export function getOrdersByEmail(email: string): StoredOrder[] {
-  return readOrders().filter((o) => o.customerEmail === email);
+  const normalizedEmail = normalizeEmail(email);
+  return readOrders().filter(
+    (o) => normalizeEmail(o.customerEmail) === normalizedEmail,
+  );
 }
 
 export function getOrderById(id: number): StoredOrder | null {

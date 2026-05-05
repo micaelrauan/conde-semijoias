@@ -28,6 +28,11 @@ export async function POST(request: NextRequest) {
       typeof user?.publicMetadata?.whatsapp === "string"
         ? user.publicMetadata.whatsapp
         : undefined;
+    const userEmail =
+      user?.primaryEmailAddress?.emailAddress ||
+      user?.emailAddresses?.[0]?.emailAddress ||
+      customer?.email ||
+      "";
 
     if (!userWhatsapp) {
       return Response.json(
@@ -72,7 +77,7 @@ export async function POST(request: NextRequest) {
     saveOrder({
       id: draftOrder.id,
       token: draftOrder.token,
-      customerEmail: customer?.email ?? "",
+      customerEmail: userEmail,
       customerName: customer?.name ?? customer?.firstName ?? "Cliente",
       total: totalInReais,
       subtotal: totalInReais,

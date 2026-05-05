@@ -6,7 +6,6 @@ import { CartProvider } from "@/contexts/CartContext";
 import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import NavbarWrapper from "@/components/NavbarWrapper";
 import MainWrapper from "@/components/MainWrapper";
-import StoreOpeningPopup from "@/components/StoreOpeningPopup";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -206,7 +205,6 @@ export default function RootLayout({
         <ClerkProvider>
           <CartProvider>
             <FavoritesProvider>
-              <StoreOpeningPopup />
               <NavbarWrapper />
               <MainWrapper>{children}</MainWrapper>
             </FavoritesProvider>
