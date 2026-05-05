@@ -1,6 +1,61 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { getPedidosByEmail } from "@/lib/nuvemshop";
 import type { StoredOrder } from "@/lib/orders-store";
+import type { NuvemshopOrder } from "@/lib/nuvemshop";
+
+type ShippingAddress = StoredOrder["shippingAddress"];
+
+function buildShippingAddress(order: NuvemshopOrder): ShippingAddress {
+  const raw = order.shipping_address;
+
+  if (!raw && !order.shipping_city && !order.shipping_zipcode) {
+    return undefined;
+  }
+
+  if (typeof raw === "string") {
+    const address = `${raw} ${order.shipping_number ?? ""}`.trim();
+    const city = order.shipping_city ?? "";
+    const province = order.shipping_province ?? "";
+    const zipcode = order.shipping_zipcode ?? "";
+    const country = order.shipping_country ?? "";
+
+    if (!address && !city && !province && !zipcode && !country) {
+      return undefined;
+    }
+
+    return {
+      address,
+      city,
+      province,
+      zipcode,
+      country,
+    };
+  }
+
+  if (raw && typeof raw === "object") {
+    const addressBase = raw.address ?? raw.address1 ?? "";
+    const number = raw.number ?? raw.street_number ?? order.shipping_number;
+    const address = `${addressBase} ${number ?? ""}`.trim();
+    const city = raw.city ?? raw.locality ?? order.shipping_city ?? "";
+    const province = raw.province ?? raw.state ?? order.shipping_province ?? "";
+    const zipcode = raw.zipcode ?? raw.zip ?? order.shipping_zipcode ?? "";
+    const country = raw.country ?? order.shipping_country ?? "";
+
+    if (!address && !city && !province && !zipcode && !country) {
+      return undefined;
+    }
+
+    return {
+      address,
+      city,
+      province,
+      zipcode,
+      country,
+    };
+  }
+
+  return undefined;
+}
 
 export async function GET() {
   const { userId } = await auth();
@@ -40,16 +95,7 @@ export async function GET() {
         price: String(product.price ?? "0"),
         image: product.image?.src ?? undefined,
       })),
-      shippingAddress: order.shipping_address
-        ? {
-            address:
-              `${order.shipping_address} ${order.shipping_number ?? ""}`.trim(),
-            city: order.shipping_city ?? "",
-            province: order.shipping_province ?? "",
-            zipcode: order.shipping_zipcode ?? "",
-            country: order.shipping_country ?? "",
-          }
-        : undefined,
+      shippingAddress: buildShippingAddress(order),
     }));
 
     return Response.json({ orders });

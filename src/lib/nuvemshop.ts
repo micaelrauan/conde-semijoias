@@ -37,7 +37,21 @@ export interface NuvemshopOrder {
   subtotal?: string;
   created_at?: string;
   products?: NuvemshopOrderProduct[];
-  shipping_address?: string;
+  shipping_address?:
+    | string
+    | {
+        address?: string;
+        address1?: string;
+        number?: string | number | null;
+        street_number?: string | number | null;
+        locality?: string;
+        city?: string;
+        province?: string;
+        state?: string;
+        zipcode?: string;
+        zip?: string;
+        country?: string;
+      };
   shipping_number?: string | number | null;
   shipping_city?: string;
   shipping_province?: string;
