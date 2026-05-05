@@ -1,25 +1,15 @@
 import type { Metadata } from "next";
 import ProdutoDetalheClient from "./ProdutoDetalheClient";
 
-type ParamsInput = { id: string } | Promise<{ id: string }>;
-
-async function resolveParams(params: ParamsInput): Promise<{ id: string }> {
-  if (typeof (params as Promise<{ id: string }>).then === "function") {
-    return params as Promise<{ id: string }>;
-  }
-
-  return params as { id: string };
-}
-
 export async function generateMetadata({
   params,
 }: {
-  params: ParamsInput;
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   try {
-    const resolved = await resolveParams(params);
+    const resolvedParams = await params;
     const res = await fetch(
-      `https://api.nuvemshop.com.br/2025-03/${process.env.NUVEMSHOP_STORE_ID}/products/${resolved.id}`,
+      `https://api.nuvemshop.com.br/2025-03/${process.env.NUVEMSHOP_STORE_ID}/products/${resolvedParams.id}`,
       {
         headers: {
           Authentication: `bearer ${process.env.NUVEMSHOP_TOKEN}`,
