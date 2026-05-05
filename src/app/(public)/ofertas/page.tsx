@@ -91,15 +91,8 @@ function mapToOfertaItems(
 }
 
 export default async function OfertasPage() {
-  let ofertas: OfertaItem[] = [];
-  let hasFetchError = false;
-
-  try {
-    const { products } = await getProdutos({ page: 1, per_page: 200 });
-    ofertas = mapToOfertaItems(products);
-  } catch {
-    hasFetchError = true;
-  }
+  const { products } = await getProdutos({ page: 1, per_page: 200 });
+  const ofertas = mapToOfertaItems(products);
 
   return (
     <div className="min-h-screen bg-white">
@@ -131,14 +124,11 @@ export default async function OfertasPage() {
         {ofertas.length === 0 ? (
           <section className="rounded-2xl border border-gray-200 bg-gray-50 p-10 text-center">
             <h2 className="text-2xl font-light text-black">
-              {hasFetchError
-                ? "Nao foi possivel carregar as ofertas"
-                : "Nenhuma oferta no momento"}
+              Nenhuma oferta no momento
             </h2>
             <p className="mt-3 text-gray-600">
-              {hasFetchError
-                ? "Tente novamente em alguns instantes ou explore os produtos disponiveis."
-                : "Assim que novos itens entrarem em promocao, eles aparecem aqui automaticamente."}
+              Assim que novos itens entrarem em promocao, eles aparecem aqui
+              automaticamente.
             </p>
             <Link
               href="/produtos"

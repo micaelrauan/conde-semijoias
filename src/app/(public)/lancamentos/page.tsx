@@ -79,16 +79,8 @@ function mapLancamentos(
 }
 
 export default async function LancamentosPage() {
-  let lancamentos: LancamentoItem[] = [];
-  let hasFetchError = false;
-
-  try {
-    const { products } = await getProdutos({ page: 1, per_page: 200 });
-    lancamentos = mapLancamentos(products);
-  } catch {
-    hasFetchError = true;
-  }
-
+  const { products } = await getProdutos({ page: 1, per_page: 200 });
+  const lancamentos = mapLancamentos(products);
   const destaque = lancamentos[0];
 
   return (
@@ -193,16 +185,8 @@ export default async function LancamentosPage() {
           {lancamentos.length === 0 ? (
             <div className="rounded-2xl border border-gray-200 bg-gray-50 p-10 text-center">
               <p className="text-gray-600">
-                {hasFetchError
-                  ? "Nao foi possivel carregar os lancamentos agora."
-                  : "Ainda nao ha lancamentos disponiveis."}
+                Ainda nao ha lancamentos disponiveis.
               </p>
-              <Link
-                href="/produtos"
-                className="mt-5 inline-flex items-center rounded-lg bg-black px-6 py-3 text-sm font-light text-white transition-colors hover:bg-gray-800"
-              >
-                Ver todos os produtos
-              </Link>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
