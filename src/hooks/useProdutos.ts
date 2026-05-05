@@ -23,6 +23,15 @@ interface UseCategoriasResult {
   error: string | null;
 }
 
+const produtosCache = new Map<
+  string,
+  { timestamp: number; data: NuvemshopProduct[] }
+>();
+let categoriasCache: { timestamp: number; data: NuvemshopCategory[] } | null =
+  null;
+const PRODUTOS_CACHE_TTL_MS = 5 * 60 * 1000;
+const CATEGORIAS_CACHE_TTL_MS = 30 * 60 * 1000;
+
 /**
  * Fetches products from the local proxy route with optional category filtering.
  */
@@ -38,6 +47,16 @@ export function useProdutos(categoryId?: number): UseProdutosResult {
       try {
         setIsLoading(true);
         setError(null);
+
+        const cacheKey = typeof categoryId === "number" ? `${categoryId}` : "all";
+        const cached = produtosCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < PRODUTOS_CACHE_TTL_MS) {
+          if (mounted) {
+            setProdutos(cached.data);
+            setIsLoading(false);
+          }
+          return;
+        }
 
         const url = new URL("/api/produtos", window.location.origin);
         url.searchParams.set("page", "1");
@@ -57,6 +76,10 @@ export function useProdutos(categoryId?: number): UseProdutosResult {
         const data = (await response.json()) as ProdutosResponse;
 
         if (mounted) {
+          produtosCache.set(cacheKey, {
+            timestamp: Date.now(),
+            data: data.products,
+          });
           setProdutos(data.products);
         }
       } catch (err) {
@@ -98,6 +121,17 @@ export function useCategorias(): UseCategoriasResult {
         setIsLoading(true);
         setError(null);
 
+        if (
+          categoriasCache &&
+          Date.now() - categoriasCache.timestamp < CATEGORIAS_CACHE_TTL_MS
+        ) {
+          if (mounted) {
+            setCategorias(categoriasCache.data);
+            setIsLoading(false);
+          }
+          return;
+        }
+
         const response = await fetch("/api/categorias");
 
         if (!response.ok) {
@@ -108,6 +142,10 @@ export function useCategorias(): UseCategoriasResult {
         const data = (await response.json()) as NuvemshopCategory[];
 
         if (mounted) {
+          categoriasCache = {
+            timestamp: Date.now(),
+            data,
+          };
           setCategorias(data);
         }
       } catch (err) {

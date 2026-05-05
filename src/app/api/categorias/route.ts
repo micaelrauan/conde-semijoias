@@ -11,7 +11,8 @@ export async function GET(): Promise<Response> {
     return NextResponse.json(categories, {
       status: 200,
       headers: {
-        "Cache-Control": "s-maxage=300, stale-while-revalidate=60",
+        "Cache-Control":
+          "public, max-age=600, s-maxage=1800, stale-while-revalidate=900",
       },
     });
   } catch (error) {

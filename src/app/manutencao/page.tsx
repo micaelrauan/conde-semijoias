@@ -1,3 +1,6 @@
+export const dynamic = "force-static";
+export const revalidate = 86400;
+
 export default function ManutencaoPage() {
   return (
     <main className="min-h-screen bg-[#f8f5f0] px-4 py-20 text-[#1c140a]">

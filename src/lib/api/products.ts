@@ -16,12 +16,20 @@ interface ProductsApiResponse {
   total: number;
 }
 
+const PRODUCTS_CACHE_TTL_MS = 5 * 60_000;
+const CATEGORIES_CACHE_TTL_MS = 30 * 60_000;
+
+const ALL_PRODUCTS_KEY = "all";
 let productsCache: Product[] | null = null;
 let categoriesCache: Category[] | null = null;
 let productsCacheAt = 0;
 let categoriesCacheAt = 0;
-
-const CACHE_TTL_MS = 60_000;
+const productsCacheByKey = new Map<
+  string,
+  { timestamp: number; data: Product[] }
+>();
+const productsInflight = new Map<string, Promise<Product[]>>();
+let categoriesInflight: Promise<Category[]> | null = null;
 
 function getApiUrl(path: string, params?: Record<string, string>): string {
   const url = new URL(path, window.location.origin);
@@ -33,6 +41,19 @@ function getApiUrl(path: string, params?: Record<string, string>): string {
   }
 
   return url.toString();
+}
+
+function getProductsCacheKey(params?: GetProductsParams): string {
+  if (!params) {
+    return ALL_PRODUCTS_KEY;
+  }
+
+  const page = params.page ?? 1;
+  const perPage = params.per_page ?? 100;
+  const categoryId =
+    typeof params.category_id === "number" ? params.category_id : "all";
+
+  return `${page}:${perPage}:${categoryId}`;
 }
 
 function stripHtml(html: string): string {
@@ -297,7 +318,7 @@ async function fetchProductsFromApi(
   }
 
   const response = await fetch(getApiUrl("/api/produtos", query), {
-    cache: "no-store",
+    cache: "force-cache",
   });
   if (!response.ok) {
     throw new Error("Erro ao carregar produtos");
@@ -309,7 +330,7 @@ async function fetchProductsFromApi(
 
 async function fetchCategoriesFromApi(): Promise<Category[]> {
   const response = await fetch(getApiUrl("/api/categorias"), {
-    cache: "no-store",
+    cache: "force-cache",
   });
   if (!response.ok) {
     throw new Error("Erro ao carregar categorias");
@@ -324,6 +345,10 @@ async function fetchCategoriesFromApi(): Promise<Category[]> {
  */
 export function replaceProductsCache(nextProducts: Product[]): void {
   productsCache = nextProducts;
+  productsCacheByKey.set(ALL_PRODUCTS_KEY, {
+    timestamp: Date.now(),
+    data: nextProducts,
+  });
 }
 
 /**
@@ -337,18 +362,38 @@ export function replaceCategoriesCache(nextCategories: Category[]): void {
  * Fetches all products or products filtered by query params.
  */
 export async function getProducts(params?: GetProductsParams) {
-  if (!params && productsCache && Date.now() - productsCacheAt < CACHE_TTL_MS) {
-    return productsCache;
+  const cacheKey = getProductsCacheKey(params);
+  const cached = productsCacheByKey.get(cacheKey);
+
+  if (cached && Date.now() - cached.timestamp < PRODUCTS_CACHE_TTL_MS) {
+    return cached.data;
   }
 
-  const products = await fetchProductsFromApi(params);
-
-  if (!params) {
-    productsCache = products;
-    productsCacheAt = Date.now();
+  const inflight = productsInflight.get(cacheKey);
+  if (inflight) {
+    return inflight;
   }
 
-  return products;
+  const requestPromise = fetchProductsFromApi(params)
+    .then((products) => {
+      productsCacheByKey.set(cacheKey, {
+        timestamp: Date.now(),
+        data: products,
+      });
+
+      if (!params) {
+        productsCache = products;
+        productsCacheAt = Date.now();
+      }
+
+      return products;
+    })
+    .finally(() => {
+      productsInflight.delete(cacheKey);
+    });
+
+  productsInflight.set(cacheKey, requestPromise);
+  return requestPromise;
 }
 
 /**
@@ -375,7 +420,9 @@ export async function getProductById(id: string | number) {
     throw new Error("ID de produto invalido");
   }
 
-  const response = await fetch(getApiUrl(`/api/produtos/${numericId}`));
+  const response = await fetch(getApiUrl(`/api/produtos/${numericId}`), {
+    cache: "force-cache",
+  });
 
   if (!response.ok) {
     throw new Error("Produto nao encontrado");
@@ -421,15 +468,26 @@ export async function searchProducts(query: string) {
 export async function getCategories() {
   if (
     categoriesCache &&
-    Date.now() - categoriesCacheAt < CACHE_TTL_MS
+    Date.now() - categoriesCacheAt < CATEGORIES_CACHE_TTL_MS
   ) {
     return categoriesCache;
   }
 
-  const categories = await fetchCategoriesFromApi();
-  categoriesCache = categories;
-  categoriesCacheAt = Date.now();
-  return categories;
+  if (categoriesInflight) {
+    return categoriesInflight;
+  }
+
+  categoriesInflight = fetchCategoriesFromApi()
+    .then((categories) => {
+      categoriesCache = categories;
+      categoriesCacheAt = Date.now();
+      return categories;
+    })
+    .finally(() => {
+      categoriesInflight = null;
+    });
+
+  return categoriesInflight;
 }
 
 /**

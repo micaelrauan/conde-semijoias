@@ -23,7 +23,8 @@ export async function GET(
     return NextResponse.json(product, {
       status: 200,
       headers: {
-        "Cache-Control": "s-maxage=120, stale-while-revalidate=60",
+        "Cache-Control":
+          "public, max-age=300, s-maxage=600, stale-while-revalidate=600",
       },
     });
   } catch (error) {
