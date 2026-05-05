@@ -51,6 +51,10 @@ NEXT_PUBLIC_CLERK_AFTER_SIGN_OUT_URL=/
 RESEND_API_KEY=re_sua_chave
 RESEND_FROM_EMAIL=pedidos@condesemijoias.com.br
 NEXT_PUBLIC_SITE_URL=https://condesemijoias.com.br
+
+# Manutencao do Site
+# Use MAINTENANCE_MODE=1 para ativar e 0 para desativar.
+MAINTENANCE_MODE=0
 ```
 
 ## Setup Local
@@ -121,6 +125,36 @@ npm run start
 - data/orders.json atualizado apos pagamento
 - Email de confirmacao enviado
 - /meus-pedidos lista pedidos do usuario logado
+
+## Modo Manutencao
+
+O modo manutencao redireciona todas as paginas para /manutencao,
+exceto as rotas da allowlist (webhook da Nuvemshop).
+
+### Ativar
+
+1. No .env.local (ou no ambiente de deploy), defina:
+
+```env
+MAINTENANCE_MODE=1
+```
+
+2. Reinicie o servidor.
+
+### Desativar
+
+1. Ajuste para:
+
+```env
+MAINTENANCE_MODE=0
+```
+
+2. Reinicie o servidor.
+
+### Rotas liberadas
+
+- /manutencao
+- /api/webhooks/nuvemshop
 
 ## Deploy
 

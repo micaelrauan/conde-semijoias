@@ -16,6 +16,35 @@ interface GetProdutosResponse {
   total: number;
 }
 
+interface NuvemshopOrderImage {
+  src?: string | null;
+}
+
+interface NuvemshopOrderProduct {
+  name?: string;
+  quantity?: number;
+  price?: string;
+  image?: NuvemshopOrderImage | null;
+}
+
+export interface NuvemshopOrder {
+  id: number;
+  token?: string;
+  status?: string;
+  contact_email?: string;
+  contact_name?: string;
+  total?: string;
+  subtotal?: string;
+  created_at?: string;
+  products?: NuvemshopOrderProduct[];
+  shipping_address?: string;
+  shipping_number?: string | number | null;
+  shipping_city?: string;
+  shipping_province?: string;
+  shipping_zipcode?: string;
+  shipping_country?: string;
+}
+
 class NuvemshopApiError extends Error {
   status: number;
 
@@ -141,6 +170,23 @@ export async function getProduto(id: number): Promise<NuvemshopProduct> {
  */
 export async function getCategorias(): Promise<NuvemshopCategory[]> {
   const { data } = await requestNuvemshop<NuvemshopCategory[]>("/categories");
+  return data;
+}
+
+/**
+ * Fetches orders filtered by contact email from Nuvemshop.
+ */
+export async function getPedidosByEmail(
+  email: string,
+): Promise<NuvemshopOrder[]> {
+  const query: Record<string, string> = {
+    contact_email: email,
+    per_page: "50",
+    page: "1",
+  };
+
+  const { data } = await requestNuvemshop<NuvemshopOrder[]>("/orders", query);
+
   return data;
 }
 

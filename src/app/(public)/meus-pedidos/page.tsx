@@ -7,7 +7,9 @@ import type { StoredOrder } from "@/lib/orders-store";
 import { buildWhatsAppLink } from "@/lib/store-contact";
 
 function formatMoney(value: string) {
-  const numericValue = Number(value.replace(/[^0-9,.-]/g, "").replace(",", "."));
+  const numericValue = Number(
+    value.replace(/[^0-9,.-]/g, "").replace(",", "."),
+  );
   if (Number.isNaN(numericValue)) return `R$ ${value}`;
 
   return new Intl.NumberFormat("pt-BR", {
@@ -73,6 +75,7 @@ export default function MeusPedidosPage() {
   const { isSignedIn } = useUser();
   const [orders, setOrders] = useState<StoredOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -81,9 +84,31 @@ export default function MeusPedidosPage() {
     }
 
     fetch("/api/pedidos")
-      .then((r) => r.json())
-      .then((data) => setOrders(data.orders ?? []))
-      .catch(() => setOrders([]))
+      .then(async (response) => {
+        const data = await response
+          .json()
+          .catch(() => ({ error: "Falha ao ler resposta do servidor." }));
+
+        if (!response.ok) {
+          throw new Error(
+            data?.error || "Nao foi possivel carregar seus pedidos.",
+          );
+        }
+
+        return data;
+      })
+      .then((data) => {
+        setOrders(data.orders ?? []);
+        setErrorMessage(null);
+      })
+      .catch((err) => {
+        const message =
+          err instanceof Error
+            ? err.message
+            : "Nao foi possivel carregar seus pedidos.";
+        setOrders([]);
+        setErrorMessage(message);
+      })
       .finally(() => setLoading(false));
   }, [isSignedIn]);
 
@@ -115,6 +140,37 @@ export default function MeusPedidosPage() {
       <main className="min-h-screen bg-gray-50 pt-24 pb-12 px-4">
         <div className="max-w-2xl mx-auto bg-white rounded-xl border border-gray-200 p-8 text-center">
           <p className="text-gray-700 font-light">Carregando pedidos...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (errorMessage) {
+    return (
+      <main className="min-h-screen bg-gray-50 pt-24 pb-12 px-4">
+        <div className="max-w-2xl mx-auto bg-white rounded-xl border border-red-200 p-8 text-center space-y-4">
+          <h1 className="text-2xl font-light tracking-wider text-black">
+            Meus Pedidos
+          </h1>
+          <p className="text-red-700 font-light">{errorMessage}</p>
+          <p className="text-gray-600 font-light">
+            Tente novamente em alguns instantes ou fale com a nossa equipe.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-black text-white px-6 hover:bg-gray-800 transition-colors"
+            >
+              Tentar novamente
+            </button>
+            <Link
+              href="/contato"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-gray-300 text-gray-700 px-6 hover:border-gray-400 hover:text-black transition-colors"
+            >
+              Falar com a loja
+            </Link>
+          </div>
         </div>
       </main>
     );
@@ -209,7 +265,9 @@ export default function MeusPedidosPage() {
                   <span>
                     {item.name} · x{item.quantity}
                   </span>
-                  <span className="whitespace-nowrap">{formatMoney(item.price)}</span>
+                  <span className="whitespace-nowrap">
+                    {formatMoney(item.price)}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -219,7 +277,8 @@ export default function MeusPedidosPage() {
                 <p className="font-medium text-black">Endereço de entrega</p>
                 <p>{order.shippingAddress.address}</p>
                 <p>
-                  {order.shippingAddress.city} - {order.shippingAddress.province}
+                  {order.shippingAddress.city} -{" "}
+                  {order.shippingAddress.province}
                 </p>
                 <p>CEP {order.shippingAddress.zipcode}</p>
               </div>

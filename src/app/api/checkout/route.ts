@@ -71,7 +71,10 @@ export async function POST(request: NextRequest) {
       phone: userWhatsapp,
     });
 
-    const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const total = items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
     const totalInReais = (total / 100).toFixed(2);
 
     saveOrder({
