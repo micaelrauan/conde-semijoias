@@ -130,8 +130,14 @@ function readLocalizedValue(
   return value.pt || value.es || value.en || undefined;
 }
 
-function getVariantLabel(variant: NuvemshopProduct["variants"][number]): string {
-  const possibleGroups = [variant.values, variant.option_values, variant.attributes];
+function getVariantLabel(
+  variant: NuvemshopProduct["variants"][number],
+): string {
+  const possibleGroups = [
+    variant.values,
+    variant.option_values,
+    variant.attributes,
+  ];
 
   for (const group of possibleGroups) {
     if (!Array.isArray(group) || group.length === 0) {
@@ -164,9 +170,7 @@ function toOptionalNumber(
   }
 
   const parsed =
-    typeof value === "number"
-      ? value
-      : Number(String(value).replace(",", "."));
+    typeof value === "number" ? value : Number(String(value).replace(",", "."));
 
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }
@@ -260,12 +264,15 @@ function mapProduct(product: NuvemshopProduct): Product {
         : variantBasePrice;
 
     const variantCompareAtRaw =
-      typeof variant.compare_at_price === "string" && variant.compare_at_price.trim()
+      typeof variant.compare_at_price === "string" &&
+      variant.compare_at_price.trim()
         ? Number(variant.compare_at_price)
         : null;
 
     const variantCompareAt =
-      variantCompareAtRaw && Number.isFinite(variantCompareAtRaw) && variantCompareAtRaw > variantPrice
+      variantCompareAtRaw &&
+      Number.isFinite(variantCompareAtRaw) &&
+      variantCompareAtRaw > variantPrice
         ? variantCompareAtRaw
         : undefined;
 

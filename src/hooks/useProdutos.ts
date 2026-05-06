@@ -48,7 +48,8 @@ export function useProdutos(categoryId?: number): UseProdutosResult {
         setIsLoading(true);
         setError(null);
 
-        const cacheKey = typeof categoryId === "number" ? `${categoryId}` : "all";
+        const cacheKey =
+          typeof categoryId === "number" ? `${categoryId}` : "all";
         const cached = produtosCache.get(cacheKey);
         if (cached && Date.now() - cached.timestamp < PRODUTOS_CACHE_TTL_MS) {
           if (mounted) {

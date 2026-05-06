@@ -88,7 +88,9 @@ export default function ProdutoDetalheClient() {
   const [error, setError] = useState<string | null>(null);
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [selectedVariantId, setSelectedVariantId] = useState<number | null>(null);
+  const [selectedVariantId, setSelectedVariantId] = useState<number | null>(
+    null,
+  );
   const [showFeedback, setShowFeedback] = useState(false);
   const [expandedFrete, setExpandedFrete] = useState(false);
   const [cepInput, setCepInput] = useState("");
@@ -234,7 +236,9 @@ export default function ProdutoDetalheClient() {
 
   const discountPrice = activeVariant?.price ?? product?.price ?? 0;
   const originalPrice =
-    activeVariant?.compare_at_price ?? product?.compare_at_price ?? discountPrice;
+    activeVariant?.compare_at_price ??
+    product?.compare_at_price ??
+    discountPrice;
   const hasDiscount = originalPrice > discountPrice;
   const discountPercentage = hasDiscount
     ? Math.round(((originalPrice - discountPrice) / originalPrice) * 100)
@@ -475,8 +479,6 @@ export default function ProdutoDetalheClient() {
               </p>
             </div>
 
-
-
             <div>
               {(activeVariant || typeof product.stock === "number") && (
                 <span
@@ -484,14 +486,14 @@ export default function ProdutoDetalheClient() {
                     mustSelectColor
                       ? "bg-amber-100 text-amber-800"
                       : (activeVariant?.stock ?? product.stock) > 0
-                      ? "bg-gray-100 text-gray-800"
-                      : "bg-red-100 text-red-700"
+                        ? "bg-gray-100 text-gray-800"
+                        : "bg-red-100 text-red-700"
                   }`}
                 >
                   {mustSelectColor
                     ? "Selecione uma cor"
                     : (activeVariant?.stock ?? product.stock) > 0
-                      ? `${activeVariant?.stock ?? product.stock} em estoque`
+                      ? "Disponível"
                       : "Esgotado"}
                 </span>
               )}

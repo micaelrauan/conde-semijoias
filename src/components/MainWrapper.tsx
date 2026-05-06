@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
+import CartToast from "./CartToast";
 
 const Footer = dynamic(() => import("./Footer"), {
   loading: () => null,
@@ -33,6 +34,7 @@ export default function MainWrapper({
     return (
       <>
         {children}
+        <CartToast />
         <CookieConsent />
       </>
     );
@@ -42,6 +44,7 @@ export default function MainWrapper({
   return (
     <>
       <main className="pt-30">{children}</main>
+      <CartToast />
       <Footer />
       <CookieConsent />
     </>

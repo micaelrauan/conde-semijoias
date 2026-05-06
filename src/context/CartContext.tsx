@@ -42,12 +42,15 @@ interface CartContextType {
   totalFormatted: string;
   itemCount: number;
   total: number;
+  lastAddedItem: CartItem | null;
+  lastAddedAt: number;
   addItem: (product: CartProductSource, variantId: number) => void;
   removeItem: (variantId: number) => void;
   updateQuantity: (variantId: number, quantity: number) => void;
   clearCart: () => void;
   clearAllItems: () => void;
   refreshCart: () => void;
+  clearLastAdded: () => void;
 }
 
 const CART_STORAGE_KEY = "cart";
@@ -85,7 +88,11 @@ function getNuvemshopVariantLabel(
     return undefined;
   }
 
-  const possibleGroups = [variant.values, variant.option_values, variant.attributes];
+  const possibleGroups = [
+    variant.values,
+    variant.option_values,
+    variant.attributes,
+  ];
 
   for (const group of possibleGroups) {
     if (!Array.isArray(group) || group.length === 0) {
@@ -125,7 +132,9 @@ function mapCartItem(product: CartProductSource, variantId: number): CartItem {
     };
   }
 
-  const selectedVariant = product.variants?.find((item) => item.id === variantId);
+  const selectedVariant = product.variants?.find(
+    (item) => item.id === variantId,
+  );
   const selectedVariantName = selectedVariant?.name?.trim();
 
   return {
@@ -155,6 +164,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isCheckingOut] = useState(false);
   const [checkoutError] = useState<string | null>(null);
+  const [lastAddedItem, setLastAddedItem] = useState<CartItem | null>(null);
+  const [lastAddedAt, setLastAddedAt] = useState(0);
 
   useEffect(() => {
     try {
@@ -192,6 +203,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addItem = (product: CartProductSource, variantId: number) => {
     const nextItem = mapCartItem(product, variantId);
+    setLastAddedItem(nextItem);
+    setLastAddedAt(Date.now());
 
     setItems((currentItems) => {
       const existingIndex = currentItems.findIndex(
@@ -234,6 +247,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems([]);
   };
 
+  const clearLastAdded = () => {
+    setLastAddedItem(null);
+    setLastAddedAt(0);
+  };
+
   const refreshCart = () => {
     try {
       const storedCart = window.localStorage.getItem(CART_STORAGE_KEY);
@@ -259,12 +277,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       totalFormatted,
       itemCount: totalItems,
       total: totalPrice,
+      lastAddedItem,
+      lastAddedAt,
       addItem,
       removeItem,
       updateQuantity,
       clearCart,
       clearAllItems: clearCart,
       refreshCart,
+      clearLastAdded,
     }),
     [
       items,
@@ -274,6 +295,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       totalItems,
       totalPrice,
       totalFormatted,
+      lastAddedItem,
+      lastAddedAt,
     ],
   );
 

@@ -55,11 +55,7 @@ function getStatusIcon(status: string) {
     case "paid":
     case "completed":
       return (
-        <svg
-          viewBox="0 0 16 16"
-          aria-hidden="true"
-          className="h-3.5 w-3.5"
-        >
+        <svg viewBox="0 0 16 16" aria-hidden="true" className="h-3.5 w-3.5">
           <path
             d="M3.5 8.5l3 3 6-7"
             fill="none"
@@ -73,11 +69,7 @@ function getStatusIcon(status: string) {
     case "processing":
     case "pending":
       return (
-        <svg
-          viewBox="0 0 16 16"
-          aria-hidden="true"
-          className="h-3.5 w-3.5"
-        >
+        <svg viewBox="0 0 16 16" aria-hidden="true" className="h-3.5 w-3.5">
           <circle
             cx="8"
             cy="8"
@@ -98,11 +90,7 @@ function getStatusIcon(status: string) {
       );
     case "cancelled":
       return (
-        <svg
-          viewBox="0 0 16 16"
-          aria-hidden="true"
-          className="h-3.5 w-3.5"
-        >
+        <svg viewBox="0 0 16 16" aria-hidden="true" className="h-3.5 w-3.5">
           <path
             d="M8 2.3l6 10.4H2L8 2.3z"
             fill="none"
@@ -122,11 +110,7 @@ function getStatusIcon(status: string) {
       );
     default:
       return (
-        <svg
-          viewBox="0 0 16 16"
-          aria-hidden="true"
-          className="h-3.5 w-3.5"
-        >
+        <svg viewBox="0 0 16 16" aria-hidden="true" className="h-3.5 w-3.5">
           <circle cx="8" cy="8" r="6" fill="currentColor" />
         </svg>
       );
@@ -162,10 +146,7 @@ export default function MeusPedidosPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [expandedOrders, setExpandedOrders] = useState<number[]>([]);
 
-  const expandedSet = useMemo(
-    () => new Set(expandedOrders),
-    [expandedOrders],
-  );
+  const expandedSet = useMemo(() => new Set(expandedOrders), [expandedOrders]);
 
   const toggleExpanded = (orderId: number) => {
     setExpandedOrders((prev) =>
@@ -314,136 +295,134 @@ export default function MeusPedidosPage() {
 
         {orders.map((order) => (
           <div key={order.id} className="group">
-          <article
-            className="bg-white rounded-2xl border border-gray-200 p-8 sm:p-9 space-y-6 shadow-sm transition-shadow duration-300 group-hover:shadow-md"
-          >
-            <header className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-gray-400">
-                  Pedido
-                </p>
-                <h2 className="text-base text-gray-500 font-light">
-                  #{order.id}
-                </h2>
-                <p className="text-sm text-gray-500 font-light mt-2">
-                  {new Date(order.createdAt).toLocaleDateString("pt-BR", {
-                    day: "2-digit",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </p>
-              </div>
-
-              <div className="text-right space-y-3">
-                <span
-                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs border ${getStatusClasses(order.status)}`}
-                >
-                  {getStatusIcon(order.status)}
-                  {getStatusLabel(order.status)}
-                </span>
-                <p className="text-xl text-black font-light">
-                  {formatMoney(order.total)}
-                </p>
-              </div>
-            </header>
-
-            <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-gray-600">
-              <div>
-                <p className="font-medium text-black">Cliente</p>
-                <p>{order.customerName}</p>
-                <p className="truncate">{order.customerEmail}</p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => toggleExpanded(order.id)}
-                className="text-sm text-gray-700 hover:text-black transition-colors"
-                aria-expanded={expandedSet.has(order.id)}
-              >
-                {expandedSet.has(order.id)
-                  ? "Ocultar detalhes"
-                  : "Ver detalhes"}
-              </button>
-            </div>
-
-            <div
-              className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-out ${
-                expandedSet.has(order.id)
-                  ? "max-h-[1000px] opacity-100"
-                  : "max-h-0 opacity-0"
-              }`}
-            >
-              <div className="pt-6 space-y-5">
-                <div className="space-y-2 border-b border-gray-100 pb-4">
-                  {order.products.map((item, i) => (
-                    <div
-                      key={`${order.id}-${i}`}
-                      className="flex items-center justify-between gap-4 text-sm text-gray-700 font-light"
-                    >
-                      <span>
-                        {item.name} · x{item.quantity}
-                      </span>
-                      <span className="whitespace-nowrap">
-                        {formatMoney(item.price)}
-                      </span>
-                    </div>
-                  ))}
+            <article className="bg-white rounded-2xl border border-gray-200 p-8 sm:p-9 space-y-6 shadow-sm transition-shadow duration-300 group-hover:shadow-md">
+              <header className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-gray-400">
+                    Pedido
+                  </p>
+                  <h2 className="text-base text-gray-500 font-light">
+                    #{order.id}
+                  </h2>
+                  <p className="text-sm text-gray-500 font-light mt-2">
+                    {new Date(order.createdAt).toLocaleDateString("pt-BR", {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </p>
                 </div>
 
-                {order.shippingAddress && (
-                  <div className="rounded-xl border border-gray-200/70 bg-gradient-to-br from-gray-50 via-white to-gray-100 p-4 text-sm text-gray-700 space-y-1">
-                    <div className="flex items-center gap-2 text-black font-medium">
-                      <svg
-                        viewBox="0 0 20 20"
-                        aria-hidden="true"
-                        className="h-4 w-4 text-gray-500"
-                      >
-                        <path
-                          d="M10 2.5c-2.8 0-5 2.2-5 5 0 3.7 5 9 5 9s5-5.3 5-9c0-2.8-2.2-5-5-5z"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.4"
-                        />
-                        <circle
-                          cx="10"
-                          cy="7.5"
-                          r="2"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.4"
-                        />
-                      </svg>
-                      Endereço de entrega
-                    </div>
-                    <p>{order.shippingAddress.address}</p>
-                    <p>
-                      {order.shippingAddress.city} -{" "}
-                      {order.shippingAddress.province}
-                    </p>
-                    <p>CEP {order.shippingAddress.zipcode}</p>
-                  </div>
-                )}
+                <div className="text-right space-y-3">
+                  <span
+                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs border ${getStatusClasses(order.status)}`}
+                  >
+                    {getStatusIcon(order.status)}
+                    {getStatusLabel(order.status)}
+                  </span>
+                  <p className="text-xl text-black font-light">
+                    {formatMoney(order.total)}
+                  </p>
+                </div>
+              </header>
+
+              <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-gray-600">
+                <div>
+                  <p className="font-medium text-black">Cliente</p>
+                  <p>{order.customerName}</p>
+                  <p className="truncate">{order.customerEmail}</p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => toggleExpanded(order.id)}
+                  className="text-sm text-gray-700 hover:text-black transition-colors"
+                  aria-expanded={expandedSet.has(order.id)}
+                >
+                  {expandedSet.has(order.id)
+                    ? "Ocultar detalhes"
+                    : "Ver detalhes"}
+                </button>
               </div>
-            </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
-              <a
-                href={buildWhatsAppLink(buildOrderSummary(order))}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#670006] text-white px-6 text-sm uppercase tracking-[0.2em] hover:bg-black transition-colors"
+              <div
+                className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-out ${
+                  expandedSet.has(order.id)
+                    ? "max-h-[1000px] opacity-100"
+                    : "max-h-0 opacity-0"
+                }`}
               >
-                Falar no WhatsApp com este pedido
-              </a>
+                <div className="pt-6 space-y-5">
+                  <div className="space-y-2 border-b border-gray-100 pb-4">
+                    {order.products.map((item, i) => (
+                      <div
+                        key={`${order.id}-${i}`}
+                        className="flex items-center justify-between gap-4 text-sm text-gray-700 font-light"
+                      >
+                        <span>
+                          {item.name} · x{item.quantity}
+                        </span>
+                        <span className="whitespace-nowrap">
+                          {formatMoney(item.price)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
 
-              <Link
-                href="/contato"
-                className="inline-flex min-h-11 items-center justify-center text-sm text-gray-600 hover:text-black transition-colors"
-              >
-                Ver contato da loja
-              </Link>
-            </div>
-          </article>
+                  {order.shippingAddress && (
+                    <div className="rounded-xl border border-gray-200/70 bg-gradient-to-br from-gray-50 via-white to-gray-100 p-4 text-sm text-gray-700 space-y-1">
+                      <div className="flex items-center gap-2 text-black font-medium">
+                        <svg
+                          viewBox="0 0 20 20"
+                          aria-hidden="true"
+                          className="h-4 w-4 text-gray-500"
+                        >
+                          <path
+                            d="M10 2.5c-2.8 0-5 2.2-5 5 0 3.7 5 9 5 9s5-5.3 5-9c0-2.8-2.2-5-5-5z"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.4"
+                          />
+                          <circle
+                            cx="10"
+                            cy="7.5"
+                            r="2"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.4"
+                          />
+                        </svg>
+                        Endereço de entrega
+                      </div>
+                      <p>{order.shippingAddress.address}</p>
+                      <p>
+                        {order.shippingAddress.city} -{" "}
+                        {order.shippingAddress.province}
+                      </p>
+                      <p>CEP {order.shippingAddress.zipcode}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <a
+                  href={buildWhatsAppLink(buildOrderSummary(order))}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#670006] text-white px-6 text-sm uppercase tracking-[0.2em] hover:bg-black transition-colors"
+                >
+                  Falar no WhatsApp com este pedido
+                </a>
+
+                <Link
+                  href="/contato"
+                  className="inline-flex min-h-11 items-center justify-center text-sm text-gray-600 hover:text-black transition-colors"
+                >
+                  Ver contato da loja
+                </Link>
+              </div>
+            </article>
           </div>
         ))}
       </div>

@@ -527,19 +527,6 @@ export default function ProdutosPage() {
                               </svg>
                             </div>
                           )}
-                          {product.stock !== undefined &&
-                            product.stock < 10 &&
-                            product.stock > 0 && (
-                              <span className="absolute top-3 right-3 bg-amber-500 text-white text-xs px-3 py-1 rounded-full font-light shadow-lg">
-                                Últimas unidades
-                              </span>
-                            )}
-                          {product.stock !== undefined &&
-                            product.stock === 0 && (
-                              <span className="absolute top-3 right-3 bg-red-500 text-white text-xs px-3 py-1 rounded-full font-light shadow-lg">
-                                Esgotado
-                              </span>
-                            )}
                           <button
                             type="button"
                             onClick={(e) => {
@@ -670,19 +657,6 @@ export default function ProdutosPage() {
                               </svg>
                             </div>
                           )}
-                          {product.stock !== undefined &&
-                            product.stock < 10 &&
-                            product.stock > 0 && (
-                              <span className="absolute top-3 right-3 bg-amber-500 text-white text-xs px-3 py-1 rounded-full font-light shadow-lg">
-                                Últimas unidades
-                              </span>
-                            )}
-                          {product.stock !== undefined &&
-                            product.stock === 0 && (
-                              <span className="absolute top-3 right-3 bg-red-500 text-white text-xs px-3 py-1 rounded-full font-light shadow-lg">
-                                Esgotado
-                              </span>
-                            )}
                           <button
                             type="button"
                             onClick={(e) => {
