@@ -61,22 +61,6 @@ export default function Footer() {
                   Perguntas Frequentes
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/devolucoes"
-                  className="hover:text-white transition-colors font-light text-sm"
-                >
-                  Política de Devoluções
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/garantia"
-                  className="hover:text-white transition-colors font-light text-sm"
-                >
-                  Garantia
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -188,12 +172,6 @@ export default function Footer() {
                 className="hover:text-white transition-colors"
               >
                 Termos de Uso
-              </Link>
-              <Link
-                href="/trocas-e-devolucoes"
-                className="hover:text-white transition-colors"
-              >
-                Trocas e Devolucoes
               </Link>
               <Link
                 href="/sobre"

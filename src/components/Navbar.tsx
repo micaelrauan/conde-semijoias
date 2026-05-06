@@ -116,10 +116,10 @@ export default function Navbar() {
                 Contato
               </Link>
               <Link
-                href="/ajuda"
+                href="/faq"
                 className="text-white/80 hover:text-white transition-colors"
               >
-                Ajuda
+                FAQ
               </Link>
             </div>
           </div>
